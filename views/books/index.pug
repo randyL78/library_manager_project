@@ -1,6 +1,7 @@
 extends ../layout
 
 block content
+  h1=title
   p
     a.button(href="#") Create New Book
   p Filters 
@@ -19,13 +20,13 @@ block content
       tbody
         tr
           td
-            a(href="/") Harry Potter and the Philosopher's Stone
+            a(href="../books/book") Harry Potter and the Philosopher's Stone
           td J.K. Rowling
           td Fantasy
           td 1998
         tr
           td
-            a(href="/") Harry Potter and the Philosopher's Stone
+            a(href="../books/book") Harry Potter and the Philosopher's Stone
           td J.K. Rowling
           td Fantasy
           td 1998
