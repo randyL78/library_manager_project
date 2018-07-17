@@ -1,21 +1,8 @@
 extends ../layout
 
 block content
+  - var submit_text = "Update"
   h1=`Book: ${title}`
-  form(action="")
-    p
-      label Title
-      input(type="text", value="A Brief History of Time")
-    p
-      label Author
-      input(type="text", value="Stephen Hawking")
-    p
-      label Genre
-      input(type="text", value="Non Fiction")
-    p
-      label First Published
-      input(type="text", value="1988")
-    p
-      input(type="submit" value="Update")
+  include book_form
   h2 Loan History
   include ../loans/loan_table
