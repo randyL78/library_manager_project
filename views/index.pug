@@ -15,6 +15,6 @@ block content
             a(href=href) #{name} 
     li Loans
       ul
-        each href, name in {"New Loan": "#", "List All": "loans/", "List Overdue": "#", "List Checked Out": "#"}
+        each href, name in {"New Loan": "loans/add", "List All": "loans/", "List Overdue": "#", "List Checked Out": "#"}
           li
             a(href=href) #{name} 
