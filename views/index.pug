@@ -5,16 +5,16 @@ block content
   ul 
     li Books
       ul
-        each href, name in {"New Book": "#", "List All": "#", "List Overdue": "#", "List Checked Out": "#"}
+        each href, name in {"New Book": "books/add", "List All": "books/", "List Overdue": "#", "List Checked Out": "#"}
           li
             a(href=href) #{name} 
     li Patrons
       ul
-        each href, name in {"New Patron": "#", "List All": "#"}
+        each href, name in {"New Patron": "patrons/add", "List All": "patrons/"}
           li
             a(href=href) #{name} 
     li Loans
       ul
-        each href, name in {"New Loan": "#", "List All": "#", "List Overdue": "#", "List Checked Out": "#"}
+        each href, name in {"New Loan": "#", "List All": "loans/", "List Overdue": "#", "List Checked Out": "#"}
           li
             a(href=href) #{name} 
