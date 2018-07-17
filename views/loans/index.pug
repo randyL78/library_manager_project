@@ -1,0 +1,35 @@
+extends ../layout
+
+block content
+  p
+    a.button(href="/") Create New Loan
+  table
+    thead
+      tr
+        th Book
+        th Patron
+        th Loaned On
+        th Return By
+        th Returned On
+        th Action
+    tbody
+      tr
+        td
+          a(href="/") Emma
+        td
+          a(href="/") Alena Holligan
+        td 2015-12-10
+        td 2020-10-20
+        td 
+        td 
+          a.button(href="/") Return Book
+      tr
+        td
+          a(href="/") Emma
+        td
+          a(href="/") Alena Holligan
+        td 2015-12-10
+        td 2020-10-20
+        td 2017-12-5
+        td 
+          a.button(href="/") Return Book
