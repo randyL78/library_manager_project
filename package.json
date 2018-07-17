@@ -1,16 +1,29 @@
 {
-  "name": "library-manager",
-  "version": "0.0.0",
-  "private": true,
+  "name": "library_manager",
+  "version": "1.0.0",
+  "description": "A simple library manger project that uses an SQLite database coupled with express with pug to display views",
+  "main": "app.js",
   "scripts": {
-    "start": "node ./bin/www"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon node bin/www"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/randyL78/library_manager_project.git"
+  },
+  "author": "Randy Layne",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/randyL78/library_manager_project/issues"
+  },
+  "homepage": "https://github.com/randyL78/library_manager_project#readme",
   "dependencies": {
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
     "morgan": "~1.9.0",
+    "nodemon": "^1.18.2",
     "pug": "2.0.0-beta11"
   }
 }

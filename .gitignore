@@ -1,5 +1,8 @@
 # dependencies
 node_modules/
 
-## Mac and IDE files
+# Mac and IDE files
 .DS_Store
+
+#project files
+non_deployed_resources/
