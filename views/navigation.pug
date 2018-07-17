@@ -1,0 +1,5 @@
+nav
+  ul
+    each href, name in {Books: "books/", Patrons: "patrons/", Loans: "loans/"}
+      li
+        a(href=href) #{name}
