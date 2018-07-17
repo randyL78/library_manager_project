@@ -1,0 +1,31 @@
+extends ../layout
+
+block content
+  p
+    a.button(href="#") Create New Book
+  p Filters 
+    a(href="/") All 
+    ||
+    a(href="/")  Overdue 
+    ||
+    a(href="/")  Checked Out
+  table
+    thead
+      tr
+        th Title
+        th Author
+        th Genre
+        th Year Released
+      tbody
+        tr
+          td
+            a(href="/") Harry Potter and the Philosopher's Stone
+          td J.K. Rowling
+          td Fantasy
+          td 1998
+        tr
+          td
+            a(href="/") Harry Potter and the Philosopher's Stone
+          td J.K. Rowling
+          td Fantasy
+          td 1998
