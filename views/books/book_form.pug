@@ -1,15 +1,15 @@
-form(action="")
+form(method="POST")
   p
-    label Title
-    input(type="text", value="A Brief History of Time")
+    label(for="title") Title
+    input#title(type="text", value=book.dataValues.title, name="title")
   p
-    label Author
-    input(type="text", value="Stephen Hawking")
+    label(for="author") Author
+    input#author(type="text", value=book.dataValues.author, name="author")
   p
-    label Genre
-    input(type="text", value="Non Fiction")
+    label(for="genre") Genre
+    input#genre(type="text", value=book.dataValues.genre, name="genre")
   p
-    label First Published
-    input(type="text", value="1988")
+    label(for="first_published") First Published
+    input#first_published(type="text", value=book.dataValues.first_published, name="first_published")
   p
     input(type="submit" value=submit_text)
