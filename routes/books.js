@@ -6,7 +6,7 @@ const Books = require("../models").Books
 /* GET all books listing. */
 router.get('/', function(req, res) {
   Books
-    .findAll()
+    .findAll({order: [['title']]})
     .then( books => {
       console.log(books[0].id);
       res.render('books/index', {books: books, title: "Books" })
