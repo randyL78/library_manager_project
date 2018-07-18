@@ -1,15 +1,15 @@
 form(method="POST")
   p
     label(for="title") Title
-    input#title(type="text", value=book.dataValues.title, name="title")
+    input#title(type="text", value=book.title, name="title")
   p
     label(for="author") Author
-    input#author(type="text", value=book.dataValues.author, name="author")
+    input#author(type="text", value=book.author, name="author")
   p
     label(for="genre") Genre
-    input#genre(type="text", value=book.dataValues.genre, name="genre")
+    input#genre(type="text", value=book.genre, name="genre")
   p
     label(for="first_published") First Published
-    input#first_published(type="text", value=book.dataValues.first_published, name="first_published")
+    input#first_published(type="text", value=book.first_published, name="first_published")
   p
     input(type="submit" value=submit_text)

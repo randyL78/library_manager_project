@@ -1,10 +1,15 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 const Books = require("../models").Books
 
 /* GET all books listing. */
 router.get('/', function(req, res) {
-  res.render('books/index', { title: 'Books' })
+  Books
+    .findAll()
+    .then(books => {
+      console.log(books[0].id);
+      res.render('books/index', {books: books, title: "Books" })
+    })
 });
 
 /* GET a form to Create a new book */
@@ -19,7 +24,7 @@ router.get('/:id', (req, res) => {
   Books
     .findById(req.params.id)
     .then(book => {
-      res.render('books/book_detail', {book, title: book.dataValues.title})
+      res.render('books/book_detail', {book, title: book.title})
     })
 });
 
