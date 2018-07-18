@@ -18,10 +18,10 @@
   },
   "homepage": "https://github.com/randyL78/library_manager_project#readme",
   "dependencies": {
-    "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
+    "method-override": "^3.0.0",
     "morgan": "~1.9.0",
     "nodemon": "^1.18.2",
     "pug": "2.0.0-beta11",

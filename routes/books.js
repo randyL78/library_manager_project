@@ -2,11 +2,12 @@ const express = require('express');
 const router = express.Router();
 const Books = require("../models").Books
 
+
 /* GET all books listing. */
 router.get('/', function(req, res) {
   Books
     .findAll()
-    .then(books => {
+    .then( books => {
       console.log(books[0].id);
       res.render('books/index', {books: books, title: "Books" })
     })
@@ -23,7 +24,7 @@ router.get('/add', (req, res) => {
 router.get('/:id', (req, res) => {
   Books
     .findById(req.params.id)
-    .then(book => {
+    .then( book => {
       res.render('books/book_detail', {book, title: book.title})
     })
 });
@@ -33,9 +34,15 @@ router.get('/:id', (req, res) => {
 router.post('/add', (req, res) => {
   Books
     .create(req.body)
-    .then(book => {
-      res.redirect("../books/add");
-    })
+    .then( book => res.redirect(`../books/${book.id}`))
 })
+
+/* PUT the updates to a book into the database */
+router.put('*', (req, res) => {
+  Books
+    .findById(req.body.id)
+    .then( book => book.update(req.body))
+    .then( book => res.redirect(`../books/${book.id}`))
+});
 
 module.exports = router;

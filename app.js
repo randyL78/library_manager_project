@@ -1,15 +1,22 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+// make static paths easier to navigate
+const path = require('path');
+// for pretty console colors
+const logger = require('morgan');
+// to allow for PUT from HTML form
+const methodOverride = require('method-override');
 
-var indexRouter = require('./routes/index');
+// Different route handlers
+const indexRouter = require('./routes/index');
 const booksRouter = require('./routes/books');
 const patronsRouter = require('./routes/patrons');
 const loansRouter = require('./routes/loans');
 
-var app = express();
+const app = express();
+
+
+app.use(methodOverride('_method'));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -18,7 +25,6 @@ app.set('view engine', 'pug');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);

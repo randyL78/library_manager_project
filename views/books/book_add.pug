@@ -1,6 +1,8 @@
 extends ../layout
 
 block content
-  - var submit_text = "Create New Book"
   h1= title
-  include book_form
+  form(action="../books/add", method="post")
+    include book_form
+    p
+      input(type="submit" value="Create New Book")

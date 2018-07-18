@@ -1,8 +1,11 @@
 extends ../layout
 
 block content
-  - var submit_text = "Update"
   h1=`Book: ${title}`
-  include book_form
+  form(action="../books/" + book.id + '?_method=PUT', method="post", enctype="application/x-www-form-urlencoded")
+    include book_form
+    input(type="hidden", name="_method", value="PUT")
+    p
+      input(type="submit" value="Update")
   h2 Loan History
   include ../loans/loan_table
