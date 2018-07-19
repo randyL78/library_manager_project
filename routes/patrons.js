@@ -4,6 +4,7 @@ const router = express.Router();
 
 /* Custom dependencies */
 const Patrons = require("../models").Patrons
+const LibraryData = require("../middleware/libraryData");
 
 /* GET all patrons listing. */
 router.get('/', function(req, res, next) {

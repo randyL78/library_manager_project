@@ -3,15 +3,11 @@ const express = require('express');
 const router = express.Router();
 
 /* Custom dependencies */
-const Loans = require("../models").Loans
+const LibraryData = require("../middleware/libraryData");
 
 /* GET all loans listing. */
 router.get('/', (req, res) => {
-  Loans
-    .findAll()
-    .then( loans => {
-      res.render('loans/index', {loans, title: 'Loans' })
-    })
+  LibraryData.getAllLoans.then( loans => res.render('loans/index', {loans, title: 'Loans' }))
 });
 
 /* Create a new loan */
