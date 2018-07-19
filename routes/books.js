@@ -1,5 +1,8 @@
+/* Node dependencies */
 const express = require('express');
 const router = express.Router();
+
+/* Custom dependencies */
 const Books = require("../models").Books
 
 
@@ -7,10 +10,7 @@ const Books = require("../models").Books
 router.get('/', function(req, res) {
   Books
     .findAll({order: [['title']]})
-    .then( books => {
-      console.log(books[0].id);
-      res.render('books/index', {books: books, title: "Books" })
-    })
+    .then( books => res.render('books/index', {books, title: "Books" }));
 });
 
 /* GET a form to Create a new book */
@@ -20,15 +20,12 @@ router.get('/add', (req, res) => {
   res.render('books/book_add', {book: Books.build(), title: "New Book"})
 });
 
-/* Get the details of a single book */
+/* GET the details of a single book */
 router.get('/:id', (req, res) => {
   Books
     .findById(req.params.id)
-    .then( book => {
-      res.render('books/book_detail', {book, title: book.title})
-    })
+    .then( book => res.render('books/book_detail', {book, title: book.title}));
 });
-
 
 /* POST a new book to the database */
 router.post('/add', (req, res) => {

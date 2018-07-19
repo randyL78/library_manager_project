@@ -1,8 +1,8 @@
 extends ../layout
 
 block content
-  - var submit_text = "Update"
   h1=`Patron: ${title}`
-  include patron_form
-  h2 Loan History
-  include ../loans/loan_table
+  form(method="post")
+    include patron_form
+    p
+      input(type="submit", value="Update")

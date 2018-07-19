@@ -2,9 +2,8 @@ extends ../layout
 
 block content
   h1=`Book: ${title}`
-  form(action="../books/" + book.id + '?_method=PUT', method="post", enctype="application/x-www-form-urlencoded")
+  form(action="../books/" + book.id + '?_method=PUT', method="post")
     include book_form
-    input(type="hidden", name="_method", value="PUT")
     p
       input(type="submit" value="Update")
   h2 Loan History

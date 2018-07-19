@@ -1,6 +1,8 @@
 extends ../layout
 
 block content
-  - var submit_text = "Add"
   h1=title
-  include patron_form
+  form(method="post")
+    include patron_form
+    p
+      input(type="submit", value="Add Patron")

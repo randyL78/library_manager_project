@@ -1,19 +1,38 @@
-var express = require('express');
-var router = express.Router();
+/* Node dependencies */
+const express = require('express');
+const router = express.Router();
+
+/* Custom dependencies */
+const Patrons = require("../models").Patrons
 
 /* GET all patrons listing. */
 router.get('/', function(req, res, next) {
-  res.render('patrons/index', { title: 'Patrons' })
+  Patrons
+    .findAll({order: [['last_name'],['first_name']]})
+    .then( patrons => res.render('patrons/index', {patrons, title: 'Patrons' }));
+});
+
+/* GET a form to add a new Patron. */
+router.get('/add', (req, res) => {
+  res.render('patrons/patron_add', {patron: Patrons.build(), title: 'New Patron' })
 });
 
 /* GET details of one patron. */
-router.get('/patron', function(req, res, next) {
-  res.render('patrons/patron_detail', { title: 'Andrew Chalkley' })
+router.get('/:id', (req, res) => {
+  Patrons
+    .findById(req.params.id)
+    .then(patron => {
+      res.render('patrons/patron_detail', {patron, title: `${patron.first_name} ${patron.last_name}`})
+    });
+  
 });
 
-/* Add a new Patron. */
-router.get('/add', function(req, res, next) {
-  res.render('patrons/patron_add', { title: 'New Patron' })
-});
+/* POST a new patron to database */
+router.post('/add', (req, res) => {
+  Patrons
+    .create(req.body)
+    .then( patron => res.redirect(`../patrons/${patron.id}`));
+})
+
 
 module.exports = router;

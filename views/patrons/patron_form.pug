@@ -1,21 +1,18 @@
-form(action="", method="post")
-  p
-    label First Name
-    input(type="text" value="Andrew")
-  p
-    label Last Name
-    input(type="text", name="Chalkley")
-  p
-    label(for="address") Address
-    input#address(type="text" value="123 Easy St")
-  p
-    label(for="email") Email
-    input#email(type="email" value="dadsaf@dasf.com")
-  p
-    label(for="library_id") Library Id
-    input#library_id(type="text" value="123 Easy St")
-  p
-    label(for="zip_code") Zip Code
-    input#zip_code(type="text" value="123 Easy St")
-  p
-    input(type="submit", value=submit_text)
+p
+  label(for="first_name") First Name
+  input#first_name(type="text" value=patron.first_name name="first_name")
+p
+  label(for="last_name") Last Name
+  input#last_name(type="text", value=patron.last_name name="last_name")
+p
+  label(for="address") Address
+  input#address(type="text" value=patron.address name="address")
+p
+  label(for="email") Email
+  input#email(type="email" value=patron.email name="email")
+p
+  label(for="library_id") Library Id
+  input#library_id(type="text" value=patron.library_id name="library_id")
+p
+  label(for="zip_code") Zip Code
+  input#zip_code(type="text" value=patron.zip_code name="zip_code")

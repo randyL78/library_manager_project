@@ -89,6 +89,6 @@ input {
   border-radius: 2px;
   border-color: #E7E7E7;
 }
-input[type=text], select {
+input[type=text], input[type=email], select {
   margin-left: 10px;
 }
