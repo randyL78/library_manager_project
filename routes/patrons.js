@@ -24,7 +24,6 @@ router.get('/:id', (req, res) => {
     .then(patron => {
       res.render('patrons/patron_detail', {patron, title: `${patron.first_name} ${patron.last_name}`})
     });
-  
 });
 
 /* POST a new patron to database */
@@ -32,7 +31,15 @@ router.post('/add', (req, res) => {
   Patrons
     .create(req.body)
     .then( patron => res.redirect(`../patrons/${patron.id}`));
-})
+});
+
+/* PUT updates to a patron in database */
+router.put('*', (req, res) => {
+  Patrons
+    .findById(req.body.id)
+    .then( patron => patron.update(req.body))
+    .then( patron => res.redirect(`../patrons/${patron.id}`));
+});
 
 
 module.exports = router;

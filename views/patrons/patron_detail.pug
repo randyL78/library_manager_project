@@ -2,7 +2,7 @@ extends ../layout
 
 block content
   h1=`Patron: ${title}`
-  form(method="post")
+  form(action="../patrons/" + patron.id + '?_method=PUT' method="post")
     include patron_form
     p
       input(type="submit", value="Update")

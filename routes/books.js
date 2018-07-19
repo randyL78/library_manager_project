@@ -39,7 +39,7 @@ router.put('*', (req, res) => {
   Books
     .findById(req.body.id)
     .then( book => book.update(req.body))
-    .then( book => res.redirect(`../books/${book.id}`))
+    .then( book => res.redirect(`../books/${book.id}`));
 });
 
 module.exports = router;
