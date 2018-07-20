@@ -12,9 +12,9 @@ table
       each loan in loans
         tr
           td
-            a(href=`../books/${loan.book_id}`)=loan.book_title
+            a(href=`../books/${loan.book_id}`)=loan.dataValues.book_title
           td
-            a(href=`../patrons/${loan.patron_id}`)=loan.patron_name
+            a(href=`../patrons/${loan.patron_id}`)=loan.dataValues.patron_name
           td=loan.loaned_on
           td=loan.return_by
           td=loan.returned_on
