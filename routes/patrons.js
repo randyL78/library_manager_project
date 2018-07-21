@@ -22,7 +22,9 @@ router.get('/add', (req, res) => {
 
 /* GET loan return */
 router.get('/return/:id', (req, res) => {
-  res.render('patrons/return_book');
+  getData
+    .findLoanById(req.params.id)
+    .then(loan => res.render('patrons/return_book', {loan, title: 'Return Book' }));
 }) 
 
 /* GET details of one patron. */
@@ -39,6 +41,12 @@ router.post('/add', (req, res) => {
   getData
     .createPatron(req.body)
     .then(res.redirect(`../patrons/`));
+});
+
+/* PUT an update to a loan marked returned */
+router.put('*', (req, res) => {
+  console.log("I've been returned");
+  res.redirect(`/`)
 });
 
 /* PUT updates to a patron in database */

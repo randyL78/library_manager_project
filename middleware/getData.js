@@ -15,6 +15,24 @@ const Patrons = Models.Patrons
 /* =============================================
  *            Loans
  * ============================================= */
+    
+/** find a loan on its primary key value */
+findLoanById = id => 
+  Loans
+    .findById(id, {
+      include: [{
+        model: Books
+      },{
+        model: Patrons     
+      }],
+      attributes: {
+        include: [
+          [Sequelize.literal('Book.title'), 'book_title'], 
+          // Concactenate first name and last name into patron_name
+          [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
+        ]
+      }
+    });
 
 /** find the loans in the loan table
  * and match up the book title and patron name 
@@ -43,12 +61,36 @@ const findLoans = book_id => {
 
     return Loans.findAll(options)
   };
-    
-
 
 /* =============================================
  *            Books
  * ============================================= */
+
+/** Build an empty book for form */
+const buildBook = () => Books.build();
+
+/** Create a book based on request object */
+const createBook = params => 
+  Books
+    .create(params)
+
+/** find all books in books table */
+const findAllBooks = () =>
+Books
+  .findAll({order:[['title']]});
+
+/** find a single book by its id 
+ * @param id the primary key value of book to find
+ */
+const findBookById = id =>
+    Promise.all([
+      Books.findById(id), 
+      findLoans(id)
+    ]).then(
+      arrays => {
+       return (arrays);
+      }
+    );
 
 /** find all books that are checked out 
  * by matching entries with empty returned_on columns 
@@ -78,10 +120,15 @@ const findCheckedOutBooks = () =>
  * by matching entries with empty returned_on columns 
  * and return_by date is less than today's date in loan tables
  *  to book id */
-const findOverdueBooks = () =>
+const findOverdueBooks = () => {
+  // Create today's date
+  const today = (new Date(Date.now()));
+  // const todaySQLFormat = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+  const todaySQLFormat = today.toISOString();
+  console.log(todaySQLFormat);
   // Use loans to find books because loans is a belongs 
   // to relationship with books
-  Loans
+  return Loans
   .findAll({
     include: [{
       model: Books
@@ -95,36 +142,11 @@ const findOverdueBooks = () =>
     ],
     order:[[Sequelize.literal('Book.title')]],
     where: {
-      returned_on: null
+      returned_on: null,
+      return_by: { [Op.gt]: todaySQLFormat}
     }
-  });
-
-
-/** find all books in books table */
-const findAllBooks = () =>
-  Books
-    .findAll({order:[['title']]});
-
-/** find a single book by its id 
- * @param id the primary key value of book to find
- */
-const findBookById = id =>
-    Promise.all([
-      Books.findById(id), 
-      findLoans(id)
-    ]).then(
-      arrays => {
-       return (arrays);
-      }
-    );
-
-/** Build an empty book for form */
-const buildBook = () => Books.build();
-
-/** Create a book based on request object */
-const createBook = params => 
-  Books
-    .create(params)
+  })
+};
 
 /** Update a book based on request object */
 const updateBook = params =>
@@ -133,7 +155,7 @@ const updateBook = params =>
     .then(book => book.update(params))
 
 /* =============================================
- *            Loans
+ *            Patrons
  * ============================================= */
 
 /** Build an empty patron for form */
@@ -179,6 +201,7 @@ module.exports = {
   findCheckedOutBooks, 
   findAllBooks,
   findAllPatrons,
+  findLoanById,
   findPatronById,
   findBookById,
   findCheckedOutBooks,

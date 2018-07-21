@@ -3,9 +3,9 @@ module.exports = (sequelize, DataTypes) => {
   var Loans = sequelize.define('Loans', {
     book_id: DataTypes.INTEGER,
     patron_id: DataTypes.INTEGER,
-    loaned_on: DataTypes.DATE,
-    return_by: DataTypes.DATE,
-    returned_on: DataTypes.DATE
+    loaned_on: DataTypes.DATEONLY,
+    return_by: DataTypes.DATEONLY,
+    returned_on: DataTypes.DATEONLY
   }, {
     timestamps: false,
     underscored: true
@@ -13,6 +13,6 @@ module.exports = (sequelize, DataTypes) => {
   Loans.associate = models => {
     Loans.belongsTo(models.Books)
     Loans.belongsTo(models.Patrons)
-  };
+  };      
   return Loans;
 };

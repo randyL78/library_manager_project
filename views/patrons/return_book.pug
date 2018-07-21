@@ -4,17 +4,17 @@ block content
   h1 Patron: Return Book
   p
     strong Book Title: 
-    span Harry Potter and the Goblet of Fire
+    span=loan.dataValues.book_title
   p
     strong Loaned By: 
-    span Andrew Chalkley
+    span=loan.dataValues.patron_name
   p
     strong Loaned On: 
-    span 2015-12-11
+    span=loan.loaned_on
   p
     strong Return By: 
-    span 2015-12-18
-  form
+    span=loan.return_by
+  form(action="../patrons/return" + loan.id + '?_method=PUT', method="post")
     p
       label(for="returned_on") Returned On:
       input#returned_on(type="text" name="returned_on" value="2020-10-10")

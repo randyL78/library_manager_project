@@ -18,10 +18,10 @@ module.exports = {
         type: Sequelize.DATE
       },
       return_by: {
-        type: Sequelize.DATE
+        type: Sequelize.DATEONLY
       },
       returned_on: {
-        type: Sequelize.DATE
+        type: Sequelize.DATEONLY
       }
     });
   },
