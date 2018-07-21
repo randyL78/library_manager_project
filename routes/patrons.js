@@ -17,13 +17,13 @@ router.get('/', function(req, res, next) {
 
 /* GET a form to add a new Patron. */
 router.get('/add', (req, res) => {
-  res.render('patrons/patron_add', {patron: Patrons.build(), title: 'New Patron' })
+  res.render('patrons/patron_add', {patron: getData.buildPatron(), title: 'New Patron' })
 });
 
 /* GET details of one patron. */
 router.get('/:id', (req, res) => {
-  Patrons
-    .findById(req.params.id)
+  getData
+    .findPatronById(req.params.id)
     .then(patron => {
       res.render('patrons/patron_detail', {patron, title: `${patron.first_name} ${patron.last_name}`})
     });
@@ -31,17 +31,16 @@ router.get('/:id', (req, res) => {
 
 /* POST a new patron to database */
 router.post('/add', (req, res) => {
-  Patrons
-    .create(req.body)
+  getData
+    .createPatron(req.body)
     .then(res.redirect(`../patrons/`));
 });
 
 /* PUT updates to a patron in database */
 router.put('*', (req, res) => {
-  Patrons
-    .findById(req.body.id)
-    .then( patron => patron.update(req.body))
-    .then( patron => res.redirect(`../patrons/${patron.id}`));
+  getData
+    .updatePatron(req.body)
+    .then(res.redirect(`../patrons/`));
 });
 
 

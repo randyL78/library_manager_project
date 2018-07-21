@@ -21,8 +21,7 @@ const Patrons = Models.Patrons
  * int the loans table 
  * @param book_id (optional) The id of the book to find the loans of, otherwise find all loans
  */
-const findLoans = book_id => 
-  new Promise( resolve => {
+const findLoans = book_id => {
     let options = {
       order: [['loaned_on']],
       include: [{
@@ -42,12 +41,8 @@ const findLoans = book_id =>
       options.where = { book_id }
     }
 
-    return Loans
-      .findAll(options)
-      .then( loans => {
-        resolve(loans)
-      })
-  });
+    return Loans.findAll(options)
+  };
     
 
 
@@ -58,7 +53,7 @@ const findLoans = book_id =>
 /** find all books that are checked out 
  * by matching entries with empty returned_on columns 
  * in loan tables to book id */
-findCheckedOutBooks = () =>
+const findCheckedOutBooks = () =>
   // Use loans to find books because loans is a belongs 
   // to relationship with books
   Loans
@@ -83,7 +78,7 @@ findCheckedOutBooks = () =>
  * by matching entries with empty returned_on columns 
  * and return_by date is less than today's date in loan tables
  *  to book id */
-findOverdueBooks = () =>
+const findOverdueBooks = () =>
   // Use loans to find books because loans is a belongs 
   // to relationship with books
   Loans
@@ -106,14 +101,14 @@ findOverdueBooks = () =>
 
 
 /** find all books in books table */
-findAllBooks = () =>
+const findAllBooks = () =>
   Books
     .findAll({order:[['title']]});
 
 /** find a single book by its id 
  * @param id the primary key value of book to find
  */
-findBookById = id =>
+const findBookById = id =>
     Promise.all([
       Books.findById(id), 
       findLoans(id)
@@ -124,15 +119,15 @@ findBookById = id =>
     );
 
 /** Build an empty book for form */
-buildBook = () => Books.build();
+const buildBook = () => Books.build();
 
 /** Create a book based on request object */
-createBook = params => 
+const createBook = params => 
   Books
     .create(params)
 
 /** Update a book based on request object */
-updateBook = params =>
+const updateBook = params =>
   Books
     .findById(params.id)
     .then(book => book.update(params))
@@ -140,6 +135,14 @@ updateBook = params =>
 /* =============================================
  *            Loans
  * ============================================= */
+
+/** Build an empty patron for form */
+const buildPatron = () => Patrons.build();
+
+/** Create a patron based on request object */
+const createPatron = params => 
+    Patrons
+      .create(params);
 
 /** find all Patrons in patrons table */
 const findAllPatrons = () => 
@@ -154,10 +157,20 @@ const findAllPatrons = () =>
         ]
       }
     });
-    
+
+/** find a single patron by their id 
+ * @param id the primary key value of the patron to find
+ */
+const findPatronById = id => 
+  Patrons
+    .findById(id)
 
 
-
+/** Update a patron based on request object */
+const updatePatron = params => 
+  Patrons
+    .findById(params.id)
+    .then(patron => patron.update(params));
 
 
 
@@ -166,11 +179,14 @@ module.exports = {
   findCheckedOutBooks, 
   findAllBooks,
   findAllPatrons,
+  findPatronById,
   findBookById,
   findCheckedOutBooks,
   findOverdueBooks,
   buildBook,
+  buildPatron,
   createBook,
+  createPatron,
   updateBook,
-  Books
+  updatePatron
  };
