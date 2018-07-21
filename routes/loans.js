@@ -6,42 +6,19 @@ const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 
 /* Custom dependencies */
-const LibraryData = require("../middleware/libraryData");
+const getData = require('../middleware/getData');
 
-/* Custom dependencies */
-const Loans = require("../models").Loans
-const Books = require("../models").Books
-const Patrons = require("../models").Patrons
-
-
-// /* GET all loans listing. */
-// router.get('/', (req, res) => {
-//   LibraryData.getAllLoans.then( loans => res.render('loans/index', {loans, title: 'Loans' }))
-// });
-
+/* GET all loans list */
 router.get('/', (req, res) => {
-  Loans
-    .findAll({
-      include: [{
-        model: Books, 
-      },{
-        model: Patrons,      
-      }],
-      attributes: {
-        include: [
-          [Sequelize.literal('Book.title'), 'book_title'], 
-          [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
-        ]
-      }
-    })
+  getData
+    .findLoans()
     .then(loans => {
-      console.log(loans[0].dataValues.book_title);
       res.render('loans/index', {loans, title: 'Loans' });
     })
 });
 
 
-/* Create a new loan */
+/* GET Create a new loan form */
 router.get('/add', (req, res) => {
   res.render('loans/loan_add', { title: 'New Loan' })
 });

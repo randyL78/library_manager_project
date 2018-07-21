@@ -22,10 +22,10 @@ block content
           each book in books
             tr
               td
-                a(href=`../books/${book.id}`) #{book.title}
-              td=book.author
-              td=book.genre
-              td=book.first_published
+                a(href=`../books/${book.dataValues.id}`) #{book.dataValues.title}
+              td=book.dataValues.author
+              td=book.dataValues.genre
+              td=book.dataValues.first_published
         else
           tr
             td No Matches Found
