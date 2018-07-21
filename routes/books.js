@@ -29,7 +29,7 @@ router.get('/', function(req, res, next) {
 /* Call this route before the details route to avoid trying to find a book with id of 'add' */
 /* Alternatively, could add a conditional in the '/:id' route to render the add view */
 router.get('/add', (req, res) => {
-  res.render('books/book_add', {book: getData.Books.build(), title: "New Book"})
+  res.render('books/book_add', {book: getData.buildBook(), title: "New Book"})
 });
 
 /* GET the details of a single book */
