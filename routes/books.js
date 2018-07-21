@@ -9,15 +9,15 @@ getData = require("../middleware/getData");
 router.get('/', function(req, res, next) {
   if (req.query.filter==='overdue') {
     getData
-      .findOverdueBooks
+      .findOverdueBooks()
       .then(books => res.render('books/index', {books, title: "Books" }));
   } else if (req.query.filter==='checked_out') {
     getData
-      .findCheckedOutBooks
+      .findCheckedOutBooks()
       .then(books => res.render('books/index', {books, title: "Books" }));
   } else if (!req.query.filter || req.query.filter ==='all') {
     getData
-      .findAllBooks
+      .findAllBooks()
       .then( books => res.render('books/index', {books, title: "Books" }));
   } else {
     // send to 404
@@ -42,7 +42,7 @@ router.get('/:id', (req, res) =>
 /* POST a new book to the database */
 router.post('/add', (req, res) => 
   getData
-    .createBooks
+    .createBook(req.body)
     .then(res.redirect(`../books/`))
 );
 

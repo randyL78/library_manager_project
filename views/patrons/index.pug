@@ -14,10 +14,9 @@ block content
         th Zip
     tbody
       each patron in patrons
-        - var name = `${patron.first_name} ${patron.last_name}`
         tr
           td
-            a(href=`../patrons/${patron.id}`)=name
+            a(href=`../patrons/${patron.id}`)=patron.dataValues.name
           td=patron.address
           td=patron.email
           td=patron.library_id

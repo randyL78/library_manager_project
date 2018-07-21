@@ -2,13 +2,16 @@
 const express = require('express');
 const router = express.Router();
 
+
 /* Custom dependencies */
-const Patrons = require("../models").Patrons
+const Patrons = require("../models").Patrons;
+const getData = require('../middleware/getData');
+
 
 /* GET all patrons listing. */
 router.get('/', function(req, res, next) {
-  Patrons
-    .findAll({order: [['last_name'],['first_name']]})
+  getData
+    .findAllPatrons()
     .then( patrons => res.render('patrons/index', {patrons, title: 'Patrons' }));
 });
 
@@ -30,7 +33,7 @@ router.get('/:id', (req, res) => {
 router.post('/add', (req, res) => {
   Patrons
     .create(req.body)
-    .then( patron => res.redirect(`../patrons/${patron.id}`));
+    .then(res.redirect(`../patrons/`));
 });
 
 /* PUT updates to a patron in database */

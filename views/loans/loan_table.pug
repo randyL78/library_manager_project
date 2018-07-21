@@ -8,7 +8,7 @@ table
       th Returned On
       th Action
   tbody
-    if loans 
+    if loans && loans.length > 0
       each loan in loans
         tr
           td

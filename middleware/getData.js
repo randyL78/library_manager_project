@@ -58,7 +58,7 @@ const findLoans = book_id =>
 /** find all books that are checked out 
  * by matching entries with empty returned_on columns 
  * in loan tables to book id */
-findCheckedOutBooks = 
+findCheckedOutBooks = () =>
   // Use loans to find books because loans is a belongs 
   // to relationship with books
   Loans
@@ -83,7 +83,7 @@ findCheckedOutBooks =
  * by matching entries with empty returned_on columns 
  * and return_by date is less than today's date in loan tables
  *  to book id */
-findOverdueBooks = 
+findOverdueBooks = () =>
   // Use loans to find books because loans is a belongs 
   // to relationship with books
   Loans
@@ -106,7 +106,7 @@ findOverdueBooks =
 
 
 /** find all books in books table */
-findAllBooks = 
+findAllBooks = () =>
   Books
     .findAll({order:[['title']]});
 
@@ -124,7 +124,7 @@ findBookById = id =>
     );
 
 /** Build an empty book for form */
-buildBook = Books.build();
+buildBook = () => Books.build();
 
 /** Create a book based on request object */
 createBook = params => 
@@ -137,12 +137,35 @@ updateBook = params =>
     .findById(params.id)
     .then(book => book.update(params))
 
+/* =============================================
+ *            Loans
+ * ============================================= */
+
+/** find all Patrons in patrons table */
+const findAllPatrons = () => 
+  Patrons
+    .findAll({
+      // sort by last name then by first name
+      order: [['last_name'],['first_name']],
+      attributes: {
+        include: [
+          // Concactenate first name and last name into name
+          [Sequelize.literal("first_name || '  ' || last_name"), 'name']
+        ]
+      }
+    });
+    
+
+
+
+
 
 
 module.exports = { 
   findLoans, 
   findCheckedOutBooks, 
   findAllBooks,
+  findAllPatrons,
   findBookById,
   findCheckedOutBooks,
   findOverdueBooks,
