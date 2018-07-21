@@ -20,6 +20,11 @@ router.get('/add', (req, res) => {
   res.render('patrons/patron_add', {patron: getData.buildPatron(), title: 'New Patron' })
 });
 
+/* GET loan return */
+router.get('/return/:id', (req, res) => {
+  res.render('patrons/return_book');
+}) 
+
 /* GET details of one patron. */
 router.get('/:id', (req, res) => {
   getData
@@ -42,6 +47,8 @@ router.put('*', (req, res) => {
     .updatePatron(req.body)
     .then(res.redirect(`../patrons/`));
 });
+
+
 
 
 module.exports = router;

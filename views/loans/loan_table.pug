@@ -19,7 +19,7 @@ table
           td=loan.return_by
           td=loan.returned_on
           td 
-            a.button(href="/") Return Book
+            a.button(href=`../patrons/return/${loan.id}`) Return Book
     else
       tr
         td No loans found
