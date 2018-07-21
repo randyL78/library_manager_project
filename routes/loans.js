@@ -23,4 +23,20 @@ router.get('/add', (req, res) => {
   res.render('loans/loan_add', { title: 'New Loan' })
 });
 
+/* GET loan return */
+router.get('/:id', (req, res) => {
+  getData
+    .findLoanById(req.params.id)
+    .then(loan => res.render('patrons/return_book', {loan, title: 'Return Book' }));
+}) 
+
+/* PUT an update to a loan marked returned */
+router.put('*', (req, res) => {
+  getData
+    .updateLoan(req.body)
+    .then(res.redirect(`../loans`))
+  
+});
+
+
 module.exports = router;

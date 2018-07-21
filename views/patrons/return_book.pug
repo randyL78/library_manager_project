@@ -14,9 +14,10 @@ block content
   p
     strong Return By: 
     span=loan.return_by
-  form(action="../patrons/return" + loan.id + '?_method=PUT', method="post")
+  form(action="../loans/" + loan.id + '?_method=PUT', method="post")
     p
       label(for="returned_on") Returned On:
-      input#returned_on(type="text" name="returned_on" value="2020-10-10")
+      input#returned_on(type="text" name="returned_on" value=loan.returned_on)
     p
       input(type="submit", value="Return Book")
+    input(type="hidden", name="id" value=loan.id)

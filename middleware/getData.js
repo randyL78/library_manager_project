@@ -11,6 +11,10 @@ const Loans = Models.Loans
 const Books = Models.Books
 const Patrons = Models.Patrons
 
+/* Other global variables */
+// Create today's date
+const todaySQLFormat = (new Date(Date.now())).toISOString();
+
 
 /* =============================================
  *            Loans
@@ -32,6 +36,10 @@ findLoanById = id =>
           [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
         ]
       }
+    })
+    .then(loan => {
+      loan.returned_on = todaySQLFormat
+      return loan;
     });
 
 /** find the loans in the loan table
@@ -61,6 +69,13 @@ const findLoans = book_id => {
 
     return Loans.findAll(options)
   };
+
+  /** Return a loaned book */
+  const updateLoan = params => 
+    Loans
+     .findById(params.id)
+     .then(loan => loan.update(params));
+  
 
 /* =============================================
  *            Books
@@ -121,10 +136,6 @@ const findCheckedOutBooks = () =>
  * and return_by date is less than today's date in loan tables
  *  to book id */
 const findOverdueBooks = () => {
-  // Create today's date
-  const today = (new Date(Date.now()));
-  // const todaySQLFormat = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
-  const todaySQLFormat = today.toISOString();
   console.log(todaySQLFormat);
   // Use loans to find books because loans is a belongs 
   // to relationship with books
@@ -211,5 +222,6 @@ module.exports = {
   createBook,
   createPatron,
   updateBook,
+  updateLoan,
   updatePatron
  };

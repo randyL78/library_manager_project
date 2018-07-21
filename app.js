@@ -1,5 +1,6 @@
 const createError = require('http-errors');
 const express = require('express');
+const logger = require('morgan');
 // make static paths easier to navigate
 const path = require('path');
 // to allow for PUT from HTML form
@@ -13,14 +14,13 @@ const loansRouter = require('./routes/loans');
 
 const app = express();
 
-
 app.use(methodOverride('_method'));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-// app.use(logger('dev'));
+app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
