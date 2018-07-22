@@ -1,13 +1,13 @@
 input(type="hidden", name="id", value=book.id )
 p
   label(for="title") Title
-  input#title(type="text", value=book.title, name="title")
+  input#title(type="text" value=book.title name="title" placeholder="required")
 p
   label(for="author") Author
-  input#author(type="text", value=book.author, name="author")
+  input#author(type="text" value=book.author name="author" placeholder="required")
 p
   label(for="genre") Genre
-  input#genre(type="text", value=book.genre, name="genre")
+  input#genre(type="text" value=book.genre name="genre" placeholder="required")
 p
   label(for="first_published") First Published
   input#first_published(type="text", value=book.first_published, name="first_published")

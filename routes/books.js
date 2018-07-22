@@ -21,8 +21,8 @@ router.get('/', function(req, res, next) {
       .findAllBooks()
       .then( books => res.render('books/index', {books, title: "Books" }));
   } else {
-    // send to 404
-    next();
+    // send to 404 handler
+    next(createError(404));
   }
 });
 
@@ -50,7 +50,6 @@ router.post('/add', (req, res, next) =>
     .then(book => {res.redirect(`../books/`)})
     .catch(err => {
       if (err.name === "SequelizeValidationError") {
-        console.log(err.errors[0].message)
         res.render('books/book_add', {error: err.errors[0], book: getData.buildBook(req.body), title: "New Book"})
       } else if (err.name === "SequelizeUniqueConstraintError") {
         let error = { message: "Title has already been used" }

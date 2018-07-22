@@ -54,8 +54,19 @@ router.post('/add', (req, res) => {
 router.put('*', (req, res) => {
   getData
     .updateLoan(req.body)
-    .then(res.redirect(`../loans/`))
-  
+    .then(err => {res.redirect(`../loans/`)})
+    .catch(err => {
+      if (err.name === "SequelizeValidationError") {
+        getData
+        .findLoanById(req.body.id)
+        .then(loan => res.render('patrons/return_book', {error: err.errors[0], loan, title: 'Return Book' }));
+      } else if (err.name === "SequelizeUniqueConstraintError") {
+        let error = { message: "Title has already been used" }
+        res.render('books/book_add', {error, book: getData.buildBook(req.body), title: "New Book"})
+      } else { 
+        next(createError(500));
+      }
+    })
 });
 
 

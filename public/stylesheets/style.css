@@ -93,6 +93,12 @@ input[type=text], input[type=email], select {
   margin-left: 10px;
 }
 
+input[type=text]::placeholder, input[type=email]::placeholder {
+  text-align: right;
+  font-style: italic;
+  padding-right: .25em;
+}
+
 .error {
   color: #B83454
 }

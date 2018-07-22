@@ -2,6 +2,7 @@ extends ../layout
 
 block content
   h1 Patron: Return Book
+  include ../validation
   p
     strong Book Title: 
     span=loan.dataValues.book_title
@@ -17,7 +18,7 @@ block content
   form(action="../loans/" + loan.id + '?_method=PUT', method="post")
     p
       label(for="returned_on") Returned On:
-      input#returned_on(type="text" name="returned_on" value=loan.returned_on)
+      input#returned_on(type="text" name="returned_on" value=loan.returned_on placeholder="required")
     p
       input(type="submit", value="Return Book")
     input(type="hidden", name="id" value=loan.id)

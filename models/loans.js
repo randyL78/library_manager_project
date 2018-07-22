@@ -5,7 +5,14 @@ module.exports = (sequelize, DataTypes) => {
     patron_id: DataTypes.INTEGER,
     loaned_on: DataTypes.DATEONLY,
     return_by: DataTypes.DATEONLY,
-    returned_on: DataTypes.DATEONLY
+    returned_on: { 
+      type: DataTypes.DATEONLY,
+      validate: {
+        isDate: {
+          msg: "Returned On field must be a date"
+        }
+      }
+     },
   }, {
     timestamps: false,
     underscored: true

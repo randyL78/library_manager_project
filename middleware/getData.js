@@ -16,6 +16,10 @@ const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
 const TODAY = (new Date(Date.now())).toISOString(); 
 const DUE = (new Date(Date.now() + ONE_WEEK)).toISOString();
 
+const TODAY_DATE_ONLY = TODAY.slice(0, TODAY.indexOf('T'));
+const DUE_DATE_ONLY = DUE.slice(0, DUE.indexOf('T'));
+
+
 /* =============================================
  *            Books
  * ============================================= */
@@ -88,7 +92,7 @@ const findOverdueBooks = () => {
       order:[[Sequelize.literal('Book.title')]],
       where: {
         returned_on: null,
-        return_by: { [Op.gt]: TODAY}
+        return_by: { [Op.gt]: TODAY_DATE_ONLY}
       }
     })
 };
@@ -114,8 +118,8 @@ const buildLoan = () =>
       data = {
         books : arrays[0],
         patrons : arrays[1],
-        loaned_on : TODAY,
-        return_by : DUE
+        loaned_on : TODAY_DATE_ONLY,
+        return_by : DUE_DATE_ONLY
       }
       return data;
     });
@@ -144,7 +148,8 @@ const findAllLoans = book_id => {
         // Concactenate first name and last name into patron_name
         [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
       ]
-    }
+    },
+
   }
   if (book_id) { 
     options.where = { book_id }
@@ -168,6 +173,7 @@ const findCheckedOutLoans = () =>
         [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
       ]
     },
+    order: [['loaned_on']],
     where: {
       returned_on: null
     }
@@ -189,12 +195,13 @@ findLoanByBook = book_id =>
           [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
         ]
       },
+      order: [['loaned_on']],
       where: {
         book_id
       }
     })
     .then(loan => {
-      loan.returned_on = TODAY
+      loan.returned_on = TODAY_DATE_ONLY
       return loan;
     });
   
@@ -213,10 +220,11 @@ Loans
         // Concactenate first name and last name into patron_name
         [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
       ]
-    }
+    },
+    order: [['loaned_on']],
   })
   .then(loan => {
-    loan.returned_on = TODAY
+    loan.returned_on = TODAY_DATE_ONLY
     return loan;
   });
 
@@ -236,12 +244,13 @@ Loans
         [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
       ]
     },
+    order: [['loaned_on']],
     where: {
       patron_id
     }
   })
   .then(loan => {
-    loan.returned_on = TODAY
+    loan.returned_on = TODAY_DATE_ONLY
     return loan;
   });
 
@@ -260,9 +269,10 @@ Loans
           [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
         ]
       },
+      order: [['loaned_on']],
       where: {
         returned_on: null,
-        return_by: {[Op.gt]: TODAY}
+        return_by: {[Op.lt]: TODAY}
       }
   });
 
