@@ -52,7 +52,10 @@ router.post('/add', (req, res, next) =>
       if (err.name === "SequelizeValidationError") {
         console.log(err.errors[0].message)
         res.render('books/book_add', {error: err.errors[0], book: getData.buildBook(req.body), title: "New Book"})
-      } else {
+      } else if (err.name === "SequelizeUniqueConstraintError") {
+        let error = { message: "Title has already been used" }
+        res.render('books/book_add', {error, book: getData.buildBook(req.body), title: "New Book"})
+      } else { 
         next(createError(500));
       }
     })
@@ -60,16 +63,18 @@ router.post('/add', (req, res, next) =>
 );
 
 /* PUT the updates to a book into the database */
-router.put('*', (req, res) => 
+router.put('*', (req, res, next) => 
   getData
     .updateBook(req.body)
     .then(book => {res.redirect(`../books/`)})
     .catch(err => {
       if (err.name === "SequelizeValidationError") {
-        console.log(err.errors[0].message)
         res.render('books/book_detail', {error: err.errors[0], book: getData.buildBook(req.body), title: req.body.title})
-      } else {
-        next(createError(500));
+      } else if (err.name === "SequelizeUniqueConstraintError") {
+        let error = { message: "Title has already been used" }
+        res.render('books/book_detail', {error, book: getData.buildBook(req.body), title: req.body.title})
+      } else { 
+        next(createError(500))
       }
     })
 );
