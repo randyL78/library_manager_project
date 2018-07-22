@@ -39,7 +39,7 @@ Books
 const findBookById = id =>
     Promise.all([
       Books.findById(id), 
-      findLoanById(id)
+      findLoanByBook(id)
     ]).then(
       arrays => {
        return (arrays);
@@ -177,10 +177,10 @@ const findCheckedOutLoans = () =>
     }
   });
     
-/** find a loan on its primary key value */
-findLoanById = id => 
+/** find a loan on its book_id value */
+findLoanByBook = id => 
   Loans
-    .findById(id, {
+    .findAll({
       include: [{
         model: Books
       },{
@@ -192,12 +192,37 @@ findLoanById = id =>
           // Concactenate first name and last name into patron_name
           [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
         ]
+      },
+      where: {
+        book_id : id
       }
     })
     .then(loan => {
       loan.returned_on = TODAY
       return loan;
     });
+  
+  /** find a loan on its primary key value */
+findLoanById = id => 
+Loans
+  .findById(id, {
+    include: [{
+      model: Books
+    },{
+      model: Patrons     
+    }],
+    attributes: {
+      include: [
+        [Sequelize.literal('Book.title'), 'book_title'], 
+        // Concactenate first name and last name into patron_name
+        [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
+      ]
+    }
+  })
+  .then(loan => {
+    loan.returned_on = TODAY
+    return loan;
+  });
 
   /** find all loans that are overdue */
   const findOverdueLoans = () =>
