@@ -12,8 +12,9 @@ const Books = Models.Books
 const Patrons = Models.Patrons
 
 /* Other global variables */
-// Create today's date
-const todaySQLFormat = (new Date(Date.now())).toISOString(); 
+const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
+const TODAY = (new Date(Date.now())).toISOString(); 
+const DUE = (new Date(Date.now() + ONE_WEEK)).toISOString();
 
 /* =============================================
  *            Books
@@ -74,27 +75,26 @@ const findCheckedOutBooks = () =>
  * and return_by date is less than today's date in loan tables
  *  to book id */
 const findOverdueBooks = () => {
-  console.log(todaySQLFormat);
   // Use loans to find books because loans is a belongs 
   // to relationship with books
   return Loans
-  .findAll({
-    include: [{
-      model: Books
-    }],
-    attributes: [
-      ['book_id', 'id'],
-      [Sequelize.literal('Book.title'), 'title'],
-      [Sequelize.literal('Book.author'), 'author'],
-      [Sequelize.literal('Book.genre'), 'genre'],
-      [Sequelize.literal('Book.first_published'), 'first_published']        
-    ],
-    order:[[Sequelize.literal('Book.title')]],
-    where: {
-      returned_on: null,
-      return_by: { [Op.gt]: todaySQLFormat}
-    }
-  })
+    .findAll({
+      include: [{
+        model: Books
+      }],
+      attributes: [
+        ['book_id', 'id'],
+        [Sequelize.literal('Book.title'), 'title'],
+        [Sequelize.literal('Book.author'), 'author'],
+        [Sequelize.literal('Book.genre'), 'genre'],
+        [Sequelize.literal('Book.first_published'), 'first_published']        
+      ],
+      order:[[Sequelize.literal('Book.title')]],
+      where: {
+        returned_on: null,
+        return_by: { [Op.gt]: TODAY}
+      }
+    })
 };
 
 /** Update a book based on request object */
@@ -106,6 +106,28 @@ const updateBook = params =>
 /* =============================================
  *            Loans
  * ============================================= */
+
+/** Build object for new loan view */
+const buildLoan = () => 
+  Promise
+    .all([
+      findAllBooks(),
+      findAllPatrons()
+    ])
+    .then(arrays => {
+      data = {
+        books : arrays[0],
+        patrons : arrays[1],
+        loaned_on : TODAY,
+        return_by : DUE
+      }
+      return data;
+    });
+
+/** Create a new loan in loan table */
+const createLoan = params => 
+    Loans
+      .create(params);
 
 /** find the loans in the loan table
  * and match up the book title and patron name 
@@ -173,7 +195,7 @@ findLoanById = id =>
       }
     })
     .then(loan => {
-      loan.returned_on = todaySQLFormat
+      loan.returned_on = TODAY
       return loan;
     });
 
@@ -194,7 +216,7 @@ findLoanById = id =>
       },
       where: {
         returned_on: null,
-        return_by: {[Op.gt]: todaySQLFormat}
+        return_by: {[Op.gt]: TODAY}
       }
   });
 
@@ -245,11 +267,13 @@ const updatePatron = params =>
     .then(patron => patron.update(params));
 
 
-
+/* export all public modules */
 module.exports = { 
   buildBook,
   buildPatron,
+  buildLoan,
   createBook,
+  createLoan,
   createPatron,
   findAllLoans, 
   findAllBooks,

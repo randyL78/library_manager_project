@@ -30,7 +30,10 @@ router.get('/', (req, res, next) => {
 
 /* GET Create a new loan form */
 router.get('/add', (req, res) => {
-  res.render('loans/loan_add', { title: 'New Loan' })
+  getData
+    .buildLoan()
+    .then( data => res.render('loans/loan_add', { data, title: 'New Loan' }))
+  
 });
 
 /* GET loan return */
@@ -39,6 +42,13 @@ router.get('/:id', (req, res) => {
     .findLoanById(req.params.id)
     .then(loan => res.render('patrons/return_book', {loan, title: 'Return Book' }));
 }) 
+
+/* POST a new loan to db */
+router.post('/add', (req, res) => {
+  getData
+    .createLoan(req.body)
+    .then(res.redirect('../loans'))
+});
 
 /* PUT an update to a loan marked returned */
 router.put('*', (req, res) => {

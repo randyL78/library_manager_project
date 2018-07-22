@@ -5,7 +5,7 @@ block content
   ul 
     li Books
       ul
-        each href, name in {"New Book": "books/add", "List All": "../books/?filter=all", "List Overdue": "../books/?filter=overdue", "List Checked Out": "../books/?filter=checked_out"}
+        each href, name in {"New Book": "books/add", "List All": "books/?filter=all", "List Overdue": "books/?filter=overdue", "List Checked Out": "books/?filter=checked_out"}
           li
             a(href=href) #{name} 
     li Patrons
@@ -15,6 +15,6 @@ block content
             a(href=href) #{name} 
     li Loans
       ul
-        each href, name in {"New Loan": "loans/add", "List All": "loans/", "List Overdue": "#", "List Checked Out": "#"}
+        each href, name in {"New Loan": "loans/add", "List All": "loans/?filter=all", "List Overdue": "loans/?filter=overdue", "List Checked Out": "loans/?filter=checked_out"}
           li
             a(href=href) #{name} 
