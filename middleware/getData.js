@@ -21,7 +21,7 @@ const DUE = (new Date(Date.now() + ONE_WEEK)).toISOString();
  * ============================================= */
 
 /** Build an empty book for form */
-const buildBook = () => Books.build();
+const buildBook = params => Books.build(params);
 
 /** Create a book based on request object */
 const createBook = params => 
@@ -37,14 +37,10 @@ Books
  * @param id the primary key value of book to find
  */
 const findBookById = id =>
-    Promise.all([
+  Promise.all([
       Books.findById(id), 
       findLoanByBook(id)
-    ]).then(
-      arrays => {
-       return (arrays);
-      }
-    );
+    ]);
 
 /** find all books that are checked out 
  * by matching entries with empty returned_on columns 
@@ -178,7 +174,7 @@ const findCheckedOutLoans = () =>
   });
     
 /** find a loan on its book_id value */
-findLoanByBook = id => 
+findLoanByBook = book_id => 
   Loans
     .findAll({
       include: [{
@@ -194,7 +190,7 @@ findLoanByBook = id =>
         ]
       },
       where: {
-        book_id : id
+        book_id
       }
     })
     .then(loan => {
@@ -217,6 +213,31 @@ Loans
         // Concactenate first name and last name into patron_name
         [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
       ]
+    }
+  })
+  .then(loan => {
+    loan.returned_on = TODAY
+    return loan;
+  });
+
+  /** find a loan on its book_id value */
+findLoanByPatron = patron_id => 
+Loans
+  .findAll({
+    include: [{
+      model: Books
+    },{
+      model: Patrons     
+    }],
+    attributes: {
+      include: [
+        [Sequelize.literal('Book.title'), 'book_title'], 
+        // Concactenate first name and last name into patron_name
+        [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
+      ]
+    },
+    where: {
+      patron_id
     }
   })
   .then(loan => {
@@ -281,8 +302,18 @@ const findAllPatrons = () =>
  * @param id the primary key value of the patron to find
  */
 const findPatronById = id => 
-  Patrons
-    .findById(id)
+  Promise
+    .all([
+      Patrons.findById(id, {
+        attributes: {
+          include: [
+            [Sequelize.literal("first_name || '  ' || last_name"), 'name']
+          ]
+        }
+      }), 
+      findLoanByPatron(id)
+    ]);
+
 
 
 /** Update a patron based on request object */

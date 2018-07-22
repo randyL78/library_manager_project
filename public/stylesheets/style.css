@@ -92,3 +92,7 @@ input {
 input[type=text], input[type=email], select {
   margin-left: 10px;
 }
+
+.error {
+  color: #B83454
+}

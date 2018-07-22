@@ -2,6 +2,7 @@ extends ../layout
 
 block content
   h1= title
+  include ../validation
   form(action="../books/add", method="post")
     include book_form
     p

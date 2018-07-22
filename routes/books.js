@@ -1,6 +1,7 @@
 /* Node dependencies */
 const express = require('express');
 const router = express.Router();
+const createError = require('http-errors');
 
 /* Custom dependencies */
 getData = require("../middleware/getData");
@@ -36,14 +37,26 @@ router.get('/add', (req, res) => {
 router.get('/:id', (req, res) => 
   getData
     .findBookById(req.params.id)
-    .then( arrays => res.render('books/book_detail', {book: arrays[0], loans: arrays[1], title: arrays[0].title}))
+    .then( arrays => 
+      res.render('books/book_detail', {book: arrays[0], loans: arrays[1], title: arrays[0].title})
+    )
+    .catch(err => createError(500))
 );
 
 /* POST a new book to the database */
-router.post('/add', (req, res) => 
+router.post('/add', (req, res, next) => 
   getData
     .createBook(req.body)
-    .then(res.redirect(`../books/`))
+    .then(book => {res.redirect(`../books/`)})
+    .catch(err => {
+      if (err.name === "SequelizeValidationError") {
+        console.log(err.errors[0].message)
+        res.render('books/book_add', {error: err.errors[0], book: getData.buildBook(req.body), title: "New Book"})
+      } else {
+        next(createError(500));
+      }
+    })
+    
 );
 
 /* PUT the updates to a book into the database */

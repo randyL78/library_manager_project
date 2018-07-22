@@ -24,8 +24,8 @@ router.get('/add', (req, res) => {
 router.get('/:id', (req, res) => {
   getData
     .findPatronById(req.params.id)
-    .then(patron => {
-      res.render('patrons/patron_detail', {patron, title: `${patron.first_name} ${patron.last_name}`})
+    .then(arrays => {
+      res.render('patrons/patron_detail', {patron: arrays[0], loans: arrays[1], title: arrays[0].dataValues.name})
     });
 });
 
