@@ -47,14 +47,14 @@ router.get('/:id', (req, res) => {
 router.post('/add', (req, res) => {
   getData
     .createLoan(req.body)
-    .then(res.redirect('../loans'))
+    .then(res.redirect('../loans/'))
 });
 
 /* PUT an update to a loan marked returned */
 router.put('*', (req, res) => {
   getData
     .updateLoan(req.body)
-    .then(res.redirect(`../loans`))
+    .then(res.redirect(`../loans/`))
   
 });
 

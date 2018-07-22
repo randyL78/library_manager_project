@@ -39,7 +39,7 @@ Books
 const findBookById = id =>
     Promise.all([
       Books.findById(id), 
-      findLoans(id)
+      findLoanById(id)
     ]).then(
       arrays => {
        return (arrays);
