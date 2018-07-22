@@ -63,7 +63,15 @@ router.post('/add', (req, res, next) =>
 router.put('*', (req, res) => 
   getData
     .updateBook(req.body)
-    .then(res.redirect(`../books/`))
+    .then(book => {res.redirect(`../books/`)})
+    .catch(err => {
+      if (err.name === "SequelizeValidationError") {
+        console.log(err.errors[0].message)
+        res.render('books/book_detail', {error: err.errors[0], book: getData.buildBook(req.body), title: req.body.title})
+      } else {
+        next(createError(500));
+      }
+    })
 );
 
 module.exports = router;

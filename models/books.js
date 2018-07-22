@@ -9,9 +9,34 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
-    author: DataTypes.STRING,
-    genre: DataTypes.STRING,
-    first_published: DataTypes.INTEGER
+    author: {
+      type: DataTypes.STRING,
+      validate: {
+        notEmpty: {
+          msg: "Author field cannot be empty"
+        }
+      }
+    },
+    genre: { 
+      type: DataTypes.STRING,
+      validate: {
+        notEmpty: {
+          msg: "Genre field cannot be empty",
+        },
+        is: {
+          args: /^[a-zA-Z\s]*$/,
+          msg: "Genre must contain letters and spaces only"
+        }
+      }
+    },
+    first_published: {
+      type: DataTypes.INTEGER,
+      validate: {
+        isNumeric: {
+          msg: "First Published field must be a number"
+        }
+      }
+    }
   }, {
     timestamps: false,
     underscored: true

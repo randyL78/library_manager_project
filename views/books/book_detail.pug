@@ -2,6 +2,7 @@ extends ../layout
 
 block content
   h1=`Book: ${title}`
+  include ../validation
   form(action="../books/" + book.id + '?_method=PUT', method="post")
     include book_form
     p
