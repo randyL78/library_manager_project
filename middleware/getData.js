@@ -13,69 +13,7 @@ const Patrons = Models.Patrons
 
 /* Other global variables */
 // Create today's date
-const todaySQLFormat = (new Date(Date.now())).toISOString();
-
-
-/* =============================================
- *            Loans
- * ============================================= */
-    
-/** find a loan on its primary key value */
-findLoanById = id => 
-  Loans
-    .findById(id, {
-      include: [{
-        model: Books
-      },{
-        model: Patrons     
-      }],
-      attributes: {
-        include: [
-          [Sequelize.literal('Book.title'), 'book_title'], 
-          // Concactenate first name and last name into patron_name
-          [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
-        ]
-      }
-    })
-    .then(loan => {
-      loan.returned_on = todaySQLFormat
-      return loan;
-    });
-
-/** find the loans in the loan table
- * and match up the book title and patron name 
- * int the loans table 
- * @param book_id (optional) The id of the book to find the loans of, otherwise find all loans
- */
-const findLoans = book_id => {
-    let options = {
-      order: [['loaned_on']],
-      include: [{
-        model: Books
-      },{
-        model: Patrons     
-      }],
-      attributes: {
-        include: [
-          [Sequelize.literal('Book.title'), 'book_title'], 
-          // Concactenate first name and last name into patron_name
-          [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
-        ]
-      }
-    }
-    if (book_id) { 
-      options.where = { book_id }
-    }
-
-    return Loans.findAll(options)
-  };
-
-  /** Return a loaned book */
-  const updateLoan = params => 
-    Loans
-     .findById(params.id)
-     .then(loan => loan.update(params));
-  
+const todaySQLFormat = (new Date(Date.now())).toISOString(); 
 
 /* =============================================
  *            Books
@@ -166,6 +104,107 @@ const updateBook = params =>
     .then(book => book.update(params))
 
 /* =============================================
+ *            Loans
+ * ============================================= */
+
+/** find the loans in the loan table
+ * and match up the book title and patron name 
+ * int the loans table 
+ * @param book_id (optional) The id of the book to find the loans of, otherwise find all loans
+ */
+const findAllLoans = book_id => {
+  let options = {
+    order: [['loaned_on']],
+    include: [{
+      model: Books
+    },{
+      model: Patrons     
+    }],
+    attributes: {
+      include: [
+        [Sequelize.literal('Book.title'), 'book_title'], 
+        // Concactenate first name and last name into patron_name
+        [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
+      ]
+    }
+  }
+  if (book_id) { 
+    options.where = { book_id }
+  }
+
+  return Loans.findAll(options)
+};
+
+/** find all loans that are still checked out */
+const findCheckedOutLoans = () =>
+  Loans
+    .findAll({include: [{
+      model: Books
+    },{
+      model: Patrons     
+    }],
+    attributes: {
+      include: [
+        [Sequelize.literal('Book.title'), 'book_title'], 
+        // Concactenate first name and last name into patron_name
+        [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
+      ]
+    },
+    where: {
+      returned_on: null
+    }
+  });
+    
+/** find a loan on its primary key value */
+findLoanById = id => 
+  Loans
+    .findById(id, {
+      include: [{
+        model: Books
+      },{
+        model: Patrons     
+      }],
+      attributes: {
+        include: [
+          [Sequelize.literal('Book.title'), 'book_title'], 
+          // Concactenate first name and last name into patron_name
+          [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
+        ]
+      }
+    })
+    .then(loan => {
+      loan.returned_on = todaySQLFormat
+      return loan;
+    });
+
+  /** find all loans that are overdue */
+  const findOverdueLoans = () =>
+    Loans
+      .findAll({include: [{
+        model: Books
+      },{
+        model: Patrons     
+      }],
+      attributes: {
+        include: [
+          [Sequelize.literal('Book.title'), 'book_title'], 
+          // Concactenate first name and last name into patron_name
+          [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
+        ]
+      },
+      where: {
+        returned_on: null,
+        return_by: {[Op.gt]: todaySQLFormat}
+      }
+  });
+
+  /** Return a loaned book */
+  const updateLoan = params => 
+    Loans
+     .findById(params.id)
+     .then(loan => loan.update(params));
+
+/* =============================================
  *            Patrons
  * ============================================= */
 
@@ -208,19 +247,20 @@ const updatePatron = params =>
 
 
 module.exports = { 
-  findLoans, 
-  findCheckedOutBooks, 
-  findAllBooks,
-  findAllPatrons,
-  findLoanById,
-  findPatronById,
-  findBookById,
-  findCheckedOutBooks,
-  findOverdueBooks,
   buildBook,
   buildPatron,
   createBook,
   createPatron,
+  findAllLoans, 
+  findAllBooks,
+  findAllPatrons,
+  findBookById,
+  findCheckedOutBooks,
+  findCheckedOutLoans,
+  findLoanById,
+  findPatronById,
+  findOverdueBooks,
+  findOverdueLoans,
   updateBook,
   updateLoan,
   updatePatron

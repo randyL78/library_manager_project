@@ -3,13 +3,8 @@ extends ../layout
 block content
   h1=title
   p
-    a.button(href="../books/add") Create New Book
-  p Filters 
-    a(href="../books/?filter=all") All 
-    ||
-    a(href="../books/?filter=overdue")  Overdue 
-    ||
-    a(href="../books/?filter=checked_out")  Checked Out
+    a.button(href="./add") Create New Book
+  include ../filter
   table
     thead
       tr
@@ -22,7 +17,7 @@ block content
           each book in books
             tr
               td
-                a(href=`../books/${book.dataValues.id}`) #{book.dataValues.title}
+                a(href=`./${book.dataValues.id}`) #{book.dataValues.title}
               td=book.dataValues.author
               td=book.dataValues.genre
               td=book.dataValues.first_published

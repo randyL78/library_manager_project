@@ -3,7 +3,7 @@ extends ../layout
 block content
   h1=title
   p
-    a.button(href="../patrons/add") Create New Patron
+    a.button(href="./add") Create New Patron
   table
     thead
       tr
@@ -16,7 +16,7 @@ block content
       each patron in patrons
         tr
           td
-            a(href=`../patrons/${patron.id}`)=patron.dataValues.name
+            a(href=`./${patron.id}`)=patron.dataValues.name
           td=patron.address
           td=patron.email
           td=patron.library_id

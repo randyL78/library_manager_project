@@ -3,5 +3,6 @@ extends ../layout
 block content
   h1=title
   p
-    a.button(href="../loans/add") Create New Loan
+    a.button(href="./add") Create New Loan
+  include ../filter
   include loan_table
