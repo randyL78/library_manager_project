@@ -31,6 +31,7 @@ router.get('/:id', (req, res) => {
 
 /* POST a new patron to database */
 router.post('/add', (req, res) => {
+  // TODO: Validate form for required fields
   getData
     .createPatron(req.body)
     .then(res.redirect(`../patrons/`));
@@ -38,6 +39,7 @@ router.post('/add', (req, res) => {
 
 /* PUT updates to a patron in database */
 router.put('*', (req, res) => {
+  // TODO: Validate form for required fields
   getData
     .updatePatron(req.body)
     .then(res.redirect(`../patrons/`));

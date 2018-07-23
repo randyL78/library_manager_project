@@ -92,7 +92,7 @@ const findOverdueBooks = () => {
       order:[[Sequelize.literal('Book.title')]],
       where: {
         returned_on: null,
-        return_by: { [Op.gt]: TODAY_DATE_ONLY}
+        return_by: { [Op.lt]: TODAY_DATE_ONLY}
       }
     })
 };
@@ -108,7 +108,7 @@ const updateBook = params =>
  * ============================================= */
 
 /** Build object for new loan view */
-const buildLoan = () => 
+const buildLoan = params => 
   Promise
     .all([
       findAllBooks(),
@@ -118,16 +118,35 @@ const buildLoan = () =>
       data = {
         books : arrays[0],
         patrons : arrays[1],
-        loaned_on : TODAY_DATE_ONLY,
-        return_by : DUE_DATE_ONLY
+        loaned_on : (params) ? params.loaned_on : TODAY_DATE_ONLY,
+        return_by : (params) ? params.return_by : DUE_DATE_ONLY,
+        selected_book : (params) ? params.book_id : null,
+        selected_patron : (params) ? params.patron_id : null
       }
       return data;
     });
 
+/** Check if book is checked out */
+const isBookCheckedOut = book_id => 
+  Loans
+    .findAll()
+    .then(loans => {
+      loans.forEach(loan => {
+        if(loan.book_id == book_id && !loan.returned_on) {
+          const err = new Error("CustomValidationError: Book is already checked out");
+          err.name = "CustomValidationError";
+          err.errors = [{message: "Book is already checked out. Please select a different book"}]
+          throw err;
+        }
+      })
+    });
+
 /** Create a new loan in loan table */
 const createLoan = params => 
-    Loans
-      .create(params);
+  Loans
+    .create(params)
+
+
 
 /** find the loans in the loan table
  * and match up the book title and patron name 
@@ -142,6 +161,7 @@ const findAllLoans = book_id => {
     },{
       model: Patrons     
     }],
+    order: [['loaned_on', 'DESC'], [Sequelize.literal('Book.title'), 'ASC'] ],
     attributes: {
       include: [
         [Sequelize.literal('Book.title'), 'book_title'], 
@@ -173,7 +193,7 @@ const findCheckedOutLoans = () =>
         [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
       ]
     },
-    order: [['loaned_on']],
+    order: [['loaned_on', 'DESC'], [Sequelize.literal('Book.title'), 'ASC'] ],
     where: {
       returned_on: null
     }
@@ -195,7 +215,7 @@ findLoanByBook = book_id =>
           [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
         ]
       },
-      order: [['loaned_on']],
+      order: [['loaned_on', 'DESC'], [Sequelize.literal('Book.title'), 'ASC'] ],
       where: {
         book_id
       }
@@ -221,7 +241,6 @@ Loans
         [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
       ]
     },
-    order: [['loaned_on']],
   })
   .then(loan => {
     loan.returned_on = TODAY_DATE_ONLY
@@ -244,7 +263,7 @@ Loans
         [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
       ]
     },
-    order: [['loaned_on']],
+    order: [['loaned_on', 'DESC'], [Sequelize.literal('Book.title'), 'ASC'] ],
     where: {
       patron_id
     }
@@ -269,7 +288,7 @@ Loans
           [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
         ]
       },
-      order: [['loaned_on']],
+      order: [['loaned_on', 'DESC'], [Sequelize.literal('Book.title'), 'ASC'] ],
       where: {
         returned_on: null,
         return_by: {[Op.lt]: TODAY}
@@ -351,6 +370,7 @@ module.exports = {
   findPatronById,
   findOverdueBooks,
   findOverdueLoans,
+  isBookCheckedOut,
   updateBook,
   updateLoan,
   updatePatron

@@ -6,19 +6,34 @@ block content
   form(action="", method="post")
     p
       label(for="book_id") Book
-      select#book_id(name="book_id")
+      select#book_id(name="book_id" autofocus)
+        if data.selected_book
+          option(disabled value=null) --Select One--
+        else
+          option(selected disabled value=null) --Select One--
         each book in data.books
-          option(value=book.id)=book.title
+          if data.selected_book == book.id
+            option(value=book.id selected)=book.title
+          else
+            option(value=book.id)=book.title
+
     p
       label(for="patron_id") Patron
       select#patron_id(name="patron_id")
+        if data.selected_patron
+          option(disabled value=null) --Select One--
+        else
+          option(selected disabled value=null) --Select One--
         each patron in data.patrons
-          option(value=patron.id)=patron.dataValues.name
+          if data.selected_patron == patron.id
+            option(value=patron.id selected)=patron.dataValues.name
+          else
+            option(value=patron.id)=patron.dataValues.name
     p
       label(for="loaned_on") Loaned on:
-      input#loaned_on(type="text" value=data.loaned_on name="loaned_on") 
+      input#loaned_on(type="text" value=data.loaned_on name="loaned_on" placeholder="required") 
     p
       label(for="return_by") Return by:
-      input#return_by(type="text" value=data.return_by name="return_by")
+      input#return_by(type="text" value=data.return_by name="return_by" placeholder="required")
     p
       input(type="submit", value="Create New Loan")
