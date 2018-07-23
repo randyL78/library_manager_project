@@ -2,33 +2,23 @@
 const express = require('express');
 const router = express.Router();
 const createError = require('http-errors');
-// Adds ability to use complex operators in where statements
-const Sequelize = require('sequelize');
-const Op = Sequelize.Op;
 
 /* Custom dependencies */
 const getData = require('../middleware/getData');
 
 /* GET all loans list */
-router.get('/', (req, res, next) => {
-  // check which type of filter is being applied
-  if (req.query.filter==='overdue') {
-    getData
-      .findOverdueLoans()
-      .then(loans => res.render('loans/index', {loans, title: "Loans" }));
-  } else if (req.query.filter==='checked_out') {
-    getData
-      .findCheckedOutLoans()
-      .then(loans => res.render('loans/index', {loans, title: "Loans" }));
-  } else if (!req.query.filter || req.query.filter ==='all') {
-    getData
-      .findAllLoans()
-      .then( loans => res.render('loans/index', {loans, title: "Loans" }));
-  } else {
-    // send to 404
-    next();
-  }
-});
+router.get('/', (req, res, next) => 
+  getData
+    .findFilteredLoans({ filter: req.query.filter})
+    .then(loans => res.render('loans/index', {loans, title: "Loans" }))
+    .catch(err => {
+      if (err.message === "Not Found") {
+        createError(404);
+      } else {
+        createError(500);
+      }
+    })
+);
 
 /* GET Create a new loan form */
 router.get('/add', (req, res) => {

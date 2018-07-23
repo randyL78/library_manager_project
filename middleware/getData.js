@@ -32,10 +32,9 @@ const createBook = params =>
   Books
     .create(params)
 
-/** find all books in books table */
-const findAllBooks = () =>
-Books
-  .findAll({order:[['title']]});
+/** Finds all books in books table */
+const findAllBooks = () => 
+  Books.findAll();   
 
 /** find a single book by its id 
  * @param id the primary key value of book to find
@@ -43,59 +42,49 @@ Books
 const findBookById = id =>
   Promise.all([
       Books.findById(id), 
-      findLoanByBook(id)
+      findFilteredLoans({book_id: id})
     ]);
 
-/** find all books that are checked out 
- * by matching entries with empty returned_on columns 
- * in loan tables to book id */
-const findCheckedOutBooks = () =>
-  // Use loans to find books because loans is a belongs 
-  // to relationship with books
-  Loans
-    .findAll({
-      include: [{
-        model: Books
-      }],
-      attributes: [
-        ['book_id', 'id'],
-        [Sequelize.literal('Book.title'), 'title'],
-        [Sequelize.literal('Book.author'), 'author'],
-        [Sequelize.literal('Book.genre'), 'genre'],
-        [Sequelize.literal('Book.first_published'), 'first_published']        
-      ],
-      order:[[Sequelize.literal('Book.title')]],
-      where: {
-        returned_on: null
-      }
-    });
-
-/** find all books that are checked out 
- * by matching entries with empty returned_on columns 
- * and return_by date is less than today's date in loan tables
- *  to book id */
-const findOverdueBooks = () => {
-  // Use loans to find books because loans is a belongs 
-  // to relationship with books
+/** find all books matching the current filter */
+const findFilteredBooks = (filter = 'all', page = 1) => {
+  // base options for all book searches
+  const options = {
+    include: [{
+      model: Books
+    }],
+    attributes: [
+      ['book_id', 'id'],
+      [Sequelize.literal('Book.title'), 'title'],
+      [Sequelize.literal('Book.author'), 'author'],
+      [Sequelize.literal('Book.genre'), 'genre'],
+      [Sequelize.literal('Book.first_published'), 'first_published']        
+    ],
+    order:[[Sequelize.literal('Book.title')]],
+  }
+  /* if filter is checked out, match book ids to entries
+   * in loan table with no return on date
+   * if filter is overdue, do the same but also check that return date
+   * is less than today's date */ 
+  if (filter === 'checked_out') {
+    options.where = {
+      returned_on: null
+    }
+  } else if (filter === 'overdue') {
+    options.where = {
+      returned_on: null,
+      return_by: { [Op.lt]: TODAY_DATE_ONLY}
+    }
+  } else if (filter === 'all') {
+    // use find all books for better performance when no filter is needed
+    return findAllBooks();
+  } else {
+    // kick back invaled filter parameters
+    throw new Error("Not Found");
+  }
+  // use Loans not Books in order to filter results
   return Loans
-    .findAll({
-      include: [{
-        model: Books
-      }],
-      attributes: [
-        ['book_id', 'id'],
-        [Sequelize.literal('Book.title'), 'title'],
-        [Sequelize.literal('Book.author'), 'author'],
-        [Sequelize.literal('Book.genre'), 'genre'],
-        [Sequelize.literal('Book.first_published'), 'first_published']        
-      ],
-      order:[[Sequelize.literal('Book.title')]],
-      where: {
-        returned_on: null,
-        return_by: { [Op.lt]: TODAY_DATE_ONLY}
-      }
-    })
-};
+    .findAll(options)
+}
 
 /** Update a book based on request object */
 const updateBook = params =>
@@ -131,46 +120,15 @@ const createLoan = params =>
   Loans
     .create(params)
 
-
-
-/** find the loans in the loan table
- * and match up the book title and patron name 
- * int the loans table 
- * @param book_id (optional) The id of the book to find the loans of, otherwise find all loans
- */
-const findAllLoans = book_id => {
-  let options = {
-    order: [['loaned_on']],
+/** find all loans matching passed filter */
+const findFilteredLoans = (params = {filter: 'all', page:'1'}) => {
+  const filter = params.filter
+  const options = {
     include: [{
       model: Books
     },{
       model: Patrons     
     }],
-    order: [['loaned_on', 'DESC'], [Sequelize.literal('Book.title'), 'ASC'] ],
-    attributes: {
-      include: [
-        [Sequelize.literal('Book.title'), 'book_title'], 
-        // Concactenate first name and last name into patron_name
-        [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
-      ]
-    },
-
-  }
-  if (book_id) { 
-    options.where = { book_id }
-  }
-
-  return Loans.findAll(options)
-};
-
-/** find all loans that are still checked out */
-const findCheckedOutLoans = () =>
-  Loans
-    .findAll({include: [{
-      model: Books
-    },{
-      model: Patrons     
-    }],
     attributes: {
       include: [
         [Sequelize.literal('Book.title'), 'book_title'], 
@@ -179,38 +137,33 @@ const findCheckedOutLoans = () =>
       ]
     },
     order: [['loaned_on', 'DESC'], [Sequelize.literal('Book.title'), 'ASC'] ],
-    where: {
+  }
+
+  if(filter === 'checked_out') {
+    options.where = {
       returned_on: null
     }
-  });
-    
-/** find a loan on its book_id value */
-findLoanByBook = book_id => 
-  Loans
-    .findAll({
-      include: [{
-        model: Books
-      },{
-        model: Patrons     
-      }],
-      attributes: {
-        include: [
-          [Sequelize.literal('Book.title'), 'book_title'], 
-          // Concactenate first name and last name into patron_name
-          [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
-        ]
-      },
-      order: [['loaned_on', 'DESC'], [Sequelize.literal('Book.title'), 'ASC'] ],
-      where: {
-        book_id
-      }
-    })
-    .then(loan => {
-      loan.returned_on = TODAY_DATE_ONLY
-      return loan;
-    });
+  } else if (filter === 'overdue') {
+    options.where = {
+      returned_on: null,
+      return_by: {[Op.lt]: TODAY}
+    }
+  } else if (filter && filter !== 'all') {
+    throw new Error('Not Found');
+  }
+
+  if (params.book_id) {
+    options.where = { book_id: params.book_id }
+  }
+
+  if (params.patron_id) {
+    options.where = { patron_id: params.patron_id }
+  }
+
+  return Loans.findAll(options);
+}
   
-  /** find a loan on its primary key value */
+ /** find a loan on its primary key value */
 findLoanById = id => 
 Loans
   .findById(id, {
@@ -230,54 +183,6 @@ Loans
   .then(loan => {
     loan.returned_on = TODAY_DATE_ONLY
     return loan;
-  });
-
-  /** find a loan on its book_id value */
-findLoanByPatron = patron_id => 
-Loans
-  .findAll({
-    include: [{
-      model: Books
-    },{
-      model: Patrons     
-    }],
-    attributes: {
-      include: [
-        [Sequelize.literal('Book.title'), 'book_title'], 
-        // Concactenate first name and last name into patron_name
-        [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
-      ]
-    },
-    order: [['loaned_on', 'DESC'], [Sequelize.literal('Book.title'), 'ASC'] ],
-    where: {
-      patron_id
-    }
-  })
-  .then(loan => {
-    loan.returned_on = TODAY_DATE_ONLY
-    return loan;
-  });
-
-  /** find all loans that are overdue */
-  const findOverdueLoans = () =>
-    Loans
-      .findAll({include: [{
-        model: Books
-      },{
-        model: Patrons     
-      }],
-      attributes: {
-        include: [
-          [Sequelize.literal('Book.title'), 'book_title'], 
-          // Concactenate first name and last name into patron_name
-          [Sequelize.literal("Patron.first_name || '  ' || Patron.last_name"), 'patron_name']
-        ]
-      },
-      order: [['loaned_on', 'DESC'], [Sequelize.literal('Book.title'), 'ASC'] ],
-      where: {
-        returned_on: null,
-        return_by: {[Op.lt]: TODAY}
-      }
   });
 
 /** Check if book is checked out */
@@ -340,17 +245,14 @@ const findPatronById = id =>
           ]
         }
       }), 
-      findLoanByPatron(id)
+      findFilteredLoans({patron_id: id})
     ]);
-
-
 
 /** Update a patron based on request object */
 const updatePatron = params => 
   Patrons
     .findById(params.id)
     .then(patron => patron.update(params));
-
 
 /* export all public modules */
 module.exports = { 
@@ -360,16 +262,12 @@ module.exports = {
   createBook,
   createLoan,
   createPatron,
-  findAllLoans, 
-  findAllBooks,
   findAllPatrons,
   findBookById,
-  findCheckedOutBooks,
-  findCheckedOutLoans,
+  findFilteredBooks,
+  findFilteredLoans,
   findLoanById,
   findPatronById,
-  findOverdueBooks,
-  findOverdueLoans,
   isBookCheckedOut,
   updateBook,
   updateLoan,

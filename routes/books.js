@@ -8,22 +8,16 @@ getData = require("../middleware/getData");
 
 /* GET books listings. */
 router.get('/', function(req, res, next) {
-  if (req.query.filter==='overdue') {
-    getData
-      .findOverdueBooks()
-      .then(books => res.render('books/index', {books, title: "Books" }));
-  } else if (req.query.filter==='checked_out') {
-    getData
-      .findCheckedOutBooks()
-      .then(books => res.render('books/index', {books, title: "Books" }));
-  } else if (!req.query.filter || req.query.filter ==='all') {
-    getData
-      .findAllBooks()
-      .then( books => res.render('books/index', {books, title: "Books" }));
-  } else {
-    // send to 404 handler
-    next(createError(404));
-  }
+  getData
+    .findFilteredBooks(req.query.filter)
+    .then(books => res.render('books/index', {books, title: "Books" }))
+    .catch(err => {
+      // send to 404 handler
+      if (err.message === "Not Found")
+        next(createError(404))
+      else
+        next(createError(500))
+    });
 });
 
 /* GET a form to Create a new book */
