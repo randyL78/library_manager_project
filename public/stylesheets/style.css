@@ -102,3 +102,31 @@ input[type=text]::placeholder, input[type=email]::placeholder {
 .error {
   color: #B83454
 }
+
+.flex-container {
+  display: flex;
+  max-width: 900px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.search input[type=submit] {
+  margin: 0;
+}
+
+.pagination .btn {
+  display: inline-block;
+  min-width: 25px;
+  text-align: center;
+  border: 1px solid #91b895;
+  background-color: #fff;
+  border-radius: 2px;
+  padding: 5px;
+  transition: background-color .2s ease-in, color .2s ease-in;
+}
+
+.pagination .btn.active, .pagination .btn:hover { 
+  border-color: #019875;
+  background-color: #019875;
+  color: #e7e7e7;
+}
