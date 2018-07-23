@@ -32,12 +32,11 @@ app.use('/loans', loansRouter)
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
-  console.log(req)
   next(createError(404));
 });
 
 // error handler
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
