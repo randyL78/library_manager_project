@@ -126,21 +126,6 @@ const buildLoan = params =>
       return data;
     });
 
-/** Check if book is checked out */
-const isBookCheckedOut = book_id => 
-  Loans
-    .findAll()
-    .then(loans => {
-      loans.forEach(loan => {
-        if(loan.book_id == book_id && !loan.returned_on) {
-          const err = new Error("CustomValidationError: Book is already checked out");
-          err.name = "CustomValidationError";
-          err.errors = [{message: "Book is already checked out. Please select a different book"}]
-          throw err;
-        }
-      })
-    });
-
 /** Create a new loan in loan table */
 const createLoan = params => 
   Loans
@@ -295,18 +280,33 @@ Loans
       }
   });
 
-  /** Return a loaned book */
-  const updateLoan = params => 
-    Loans
-     .findById(params.id)
-     .then(loan => loan.update(params));
+/** Check if book is checked out */
+const isBookCheckedOut = book_id => 
+Loans
+  .findAll()
+  .then(loans => {
+    loans.forEach(loan => {
+      if(loan.book_id == book_id && !loan.returned_on) {
+        const err = new Error("CustomValidationError: Book is already checked out");
+        err.name = "CustomValidationError";
+        err.errors = [{message: "Book is already checked out. Please select a different book"}]
+        throw err;
+      }
+    })
+  });
+
+/** Return a loaned book */
+const updateLoan = params => 
+  Loans
+    .findById(params.id)
+    .then(loan => loan.update(params));
 
 /* =============================================
  *            Patrons
  * ============================================= */
 
 /** Build an empty patron for form */
-const buildPatron = () => Patrons.build();
+const buildPatron = params => Patrons.build(params);
 
 /** Create a patron based on request object */
 const createPatron = params => 
