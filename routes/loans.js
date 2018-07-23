@@ -38,10 +38,14 @@ router.get('/add', (req, res) => {
 });
 
 /* GET loan return */
-router.get('/:id', (req, res) => {
+router.get('/:id', (req, res, next) => {
   getData
     .findLoanById(req.params.id)
-    .then(loan => res.render('patrons/return_book', {loan, title: 'Return Book' }));
+    .then(loan => res.render('patrons/return_book', {loan, title: 'Return Book' }))
+    .catch(err => {
+      next(createError(404));
+    });
+      
 }) 
 
 /* POST a new loan to db */
