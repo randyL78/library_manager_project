@@ -110,8 +110,26 @@ input[type=text]::placeholder, input[type=email]::placeholder {
   align-items: center;
 }
 
+.search {
+  display: flex;
+  align-items: center;
+}
+
+#filter {
+  border-bottom: 1px solid #019875;
+  border-right: 1px solid #019875;
+  border-top: 1px solid #024e3d;
+  border-left: 1px solid #024e3d;
+}
+
 .search input[type=submit] {
   margin: 0;
+  background: url('../images/search.svg') no-repeat #019875 center center;
+  width: 3em;
+}
+
+input[type=submit]:active {
+  background-color: #024e3d;
 }
 
 .pagination .btn {

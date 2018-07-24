@@ -1,0 +1,18 @@
+.flex-container
+  form.search(action="" method='GET')
+    input(type="hidden" value=filter name='filter')
+    input#filter(type="search", name="term" placeholder="Search...")
+    input(type="submit" value="")
+    
+  - var n = 1;
+  .pagination
+    a.btn(href=`./?filter=${filter}&page=${pagination.currentPage == 1 ? 1 : pagination.currentPage - 1}`) Previous
+    if (pagination) 
+      while n <= pagination.numberOfPages
+        if n == pagination.currentPage
+          a.active.btn(href=`./?filter=${filter}&page=${n}`)=n++
+        else
+          a.btn(href=`./?filter=${filter}&page=${n}`)=n++
+    else
+       a.active.btn(href="http://") 1
+    a.btn(href=`./?filter=${filter}&page=${pagination.currentPage == pagination.numberOfPages  ? pagination.numberOfPages  :  1 + parseInt(pagination.currentPage) }`) Next

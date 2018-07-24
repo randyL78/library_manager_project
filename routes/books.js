@@ -9,8 +9,8 @@ getData = require("../middleware/getData");
 /* GET books listings. */
 router.get('/', function(req, res, next) {
   getData
-    .findFilteredBooks(req.query.filter)
-    .then(books => res.render('books/index', {books, title: "Books" }))
+    .findFilteredBooks(req.query.filter, req.query.page)
+    .then(books => res.render('books/index', books))
     .catch(err => {
       // send to 404 handler
       if (err.message === "Not Found")
@@ -24,7 +24,8 @@ router.get('/', function(req, res, next) {
 /* Call this route before the details route to avoid trying to find a book with id of 'add' */
 /* Alternatively, could add a conditional in the '/:id' route to render the add view */
 router.get('/add', (req, res) => {
-  res.render('books/book_add', {book: getData.buildBook(), title: "New Book"})
+  res.render('books/book_add', 
+              {book: getData.buildBook(), title: "New Book"})
 });
 
 /* GET the details of a single book */
