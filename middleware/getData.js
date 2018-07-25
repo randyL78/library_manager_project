@@ -13,7 +13,7 @@ const Patrons = Models.Patrons
 
 /* Other global variables */
 const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
-const ENTRIES_PER_PAGE = 15; // change this to adjust pagination settings
+const ENTRIES_PER_PAGE = 12; // change this to adjust pagination settings
 
 /** Create a string version of today's date */
 const today = () => {
@@ -67,7 +67,7 @@ const findBookById = id =>
 
 /** find all books matching the current filter */
 const findFilteredBooks = (filter = 'all', page = 1) => {
-  // base options for all book searches
+  // declare an empty where object here and then set base on filter
   let where = {}
 
   /* if filter is checked out, match book ids to entries
@@ -75,35 +75,39 @@ const findFilteredBooks = (filter = 'all', page = 1) => {
    * if filter is overdue, do the same but also check that return date
    * is less than today's date */ 
   if (filter === 'checked_out') {
-    where = {returned_on: null}
+    where = {
+      returned_on: null
+    }
   } else if (filter === 'overdue') {
     where = {
       returned_on: null,
       return_by: { [Op.lt]: today()}
     }
   } else if (filter === 'all') {
-    // use find all books for better performance when no filter is needed
-    return new Promise( (resolve, reject) => 
-      resolve(Books.count()
-    ))
-    .then( totalNumber => {
-      const numberOfPages = parseInt(totalNumber/ ENTRIES_PER_PAGE) + 1;
-      return findAllBooks(page)
-        .then(books => ({
-          books,
-          filter, 
-          pagination: {
-            numberOfPages,
-            currentPage: page
-          },
-          title: "Books"})
-        )
-      })
+    /* use find all books for better performance when no filter is needed
+     * especially in larger databases */
+    Books.count()  
+      .then( totalNumber => {
+        // calculate number of pages worth of data
+        const numberOfPages = parseInt(totalNumber/ ENTRIES_PER_PAGE) + 1;
+        return findAllBooks(page)
+          .then(books => ({
+            books,
+            filter, 
+            pagination: {
+              numberOfPages,
+              currentPage: page
+            },
+            title: "Books"})
+          )
+        })
   } else {
     // kick back invaled filter parameters
     throw new Error("Not Found");
   }
 
+  /* extract sequelize options to help make loan promise chain
+   * more readable */
   const options = {
     include: [{
       model: Books
@@ -121,28 +125,27 @@ const findFilteredBooks = (filter = 'all', page = 1) => {
     limit : ENTRIES_PER_PAGE
   }
 
-
   // use Loans not Books in order to filter results
-  return new Promise( (resolve, reject) => 
-    resolve(Loans.count({where})
-  ))
-  .then( totalNumber => {
-    const numberOfPages = parseInt(totalNumber/ ENTRIES_PER_PAGE) + 1
-    return Loans
-      .findAll(options)
-      .then(books => {
-        return {books, numberOfPages}
-      })
-  })
-  .then( data => {
-    return {books: data.books,
-            filter,
-            pagination: {
-              numberOfPages: data.numberOfPages,
-              currentPage: page
-            },
-            title: "Books"};
-  })
+  return Loans
+    // fetch number of entries that meet criteria without returning whole database
+    .count({where})
+    .then( totalNumber => {
+      const numberOfPages = parseInt(totalNumber/ ENTRIES_PER_PAGE) + 1
+      return Loans
+        .findAll(options)
+        .then(books => ({books, numberOfPages}))
+    })
+    .then( data => {
+      return {
+        books: data.books,
+        filter,
+        pagination: {
+          numberOfPages: data.numberOfPages,
+          currentPage: page
+        },
+        title: "Books"
+      };
+    })
 }
 
 /** Update a book based on request object */
@@ -286,36 +289,37 @@ const createPatron = params =>
       // only increment countPatrons if succesful
       .then(() => {countPatrons++});
 
-/** Get number of patrons in patrons table to use for pagination 
- *  Use a variable instead of running promise each time to help 
- *  Performance in larger tables */
-let countPatrons = Patrons.count();
-
 /** find all Patrons in patrons table */
-const findAllPatrons = (page = 1) => {
-  return Patrons
-    .findAll({
-      // sort by last name then by first name
-      order: [['last_name'],['first_name']],
-      attributes: {
-        include: [
-          // Concactenate first name and last name into name
-          [Sequelize.literal("first_name || '  ' || last_name"), 'name']
-        ]
-      },
-      offset : ENTRIES_PER_PAGE * (page - 1),
-      limit : ENTRIES_PER_PAGE
+const findAllPatrons = (page = 1) => 
+  Patrons
+    // fetch number of entries that meet criteria without returning whole database
+    .count()
+    .then( totalNumber => {
+      const numberOfPages = parseInt(totalNumber/ ENTRIES_PER_PAGE) + 1
+      return Patrons
+        .findAll({
+          // sort by last name then by first name
+          order: [['last_name'],['first_name']],
+          attributes: {
+            include: [
+              // Concactenate first name and last name into name
+              [Sequelize.literal("first_name || '  ' || last_name"), 'name']
+            ]
+          },
+          offset : ENTRIES_PER_PAGE * (page - 1),
+          limit : ENTRIES_PER_PAGE
+        })
+        .then( patrons => ({patrons, numberOfPages}))
     })
     .then(data => ({
-      patrons: data,
+      patrons: data.patrons,
       pagination: {
-        numberOfPages: 3,
+        numberOfPages: data.numberOfPages,
         currentPage: page
       },
         title: "Patrons"
       })
-    )
-}
+    );
 
 
 /** find a single patron by their id 
@@ -345,7 +349,6 @@ module.exports = {
   buildBook,
   buildPatron,
   buildLoan,
-  countPatrons,
   createBook,
   createLoan,
   createPatron,

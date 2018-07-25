@@ -5,14 +5,17 @@
     input(type="submit" value="")
     
   - var n = 1;
+  - var filterRef = filter ? `filter=${filter}&` : ""
+  - var firstPage = pagination.currentPage == 1 ? 1 : pagination.currentPage - 1
+  - var lastPage = pagination.currentPage == pagination.numberOfPages  ? pagination.numberOfPages  :  1 + parseInt(pagination.currentPage)
   .pagination
-    a.btn(href=`./?filter=${filter}&page=${pagination.currentPage == 1 ? 1 : pagination.currentPage - 1}`) Previous
+    a.btn(href=`./?${filterRef}page=${firstPage}`) Previous
     if (pagination) 
       while n <= pagination.numberOfPages
         if n == pagination.currentPage
-          a.active.btn(href=`./?filter=${filter}&page=${n}`)=n++
+          a.active.btn(href=`./?${filterRef}page=${n}`)=n++
         else
-          a.btn(href=`./?filter=${filter}&page=${n}`)=n++
+          a.btn(href=`./?${filterRef}page=${n}`)=n++
     else
        a.active.btn(href="http://") 1
-    a.btn(href=`./?filter=${filter}&page=${pagination.currentPage == pagination.numberOfPages  ? pagination.numberOfPages  :  1 + parseInt(pagination.currentPage) }`) Next
+    a.btn(href=`./?${filterRef}page=${lastPage}`) Next
