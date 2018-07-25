@@ -86,7 +86,8 @@ const findFilteredBooks = (filter = 'all', page = 1) => {
   } else if (filter === 'all') {
     /* use find all books for better performance when no filter is needed
      * especially in larger databases */
-    Books.count()  
+    return Books
+      .count()  
       .then( totalNumber => {
         // calculate number of pages worth of data
         const numberOfPages = parseInt(totalNumber/ ENTRIES_PER_PAGE) + 1;
