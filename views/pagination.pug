@@ -1,21 +1,26 @@
 .flex-container
   form.search(action="" method='GET')
+    //- use hidden inputs to store current url values for easy extraction
+    //- only a book view will contain a term value
     input(type="hidden" value=filter name='filter')
-    input#filter(type="search", name="term" placeholder="Search...")
+    input#filter(type="search" name="term" placeholder="Search..." value=`${ term ? term : "" }`)
     input(type="submit" value="")
     
   - var n = 1;
+  //- adjust href based on current filter and search term values
   - var filterRef = filter ? `filter=${filter}&` : ""
   - var firstPage = pagination.currentPage == 1 ? 1 : pagination.currentPage - 1
   - var lastPage = pagination.currentPage == pagination.numberOfPages  ? pagination.numberOfPages  :  1 + parseInt(pagination.currentPage)
+  - var termRef = term ? `&term=${term}` : ""
   .pagination
-    a.btn(href=`./?${filterRef}page=${firstPage}`) Previous
+    a.btn(href=`./?${filterRef}page=${firstPage}${termRef}`) Previous
     if (pagination) 
       while n <= pagination.numberOfPages
+        //- check for which page is current and set active styles
         if n == pagination.currentPage
-          a.active.btn(href=`./?${filterRef}page=${n}`)=n++
+          a.active.btn(href=`./?${filterRef}page=${n}${termRef}`)=n++
         else
           a.btn(href=`./?${filterRef}page=${n}`)=n++
     else
        a.active.btn(href="http://") 1
-    a.btn(href=`./?${filterRef}page=${lastPage}`) Next
+    a.btn(href=`./?${filterRef}page=${lastPage}${termRef}`) Next

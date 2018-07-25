@@ -9,7 +9,7 @@ getData = require("../middleware/getData");
 /* GET books listings. */
 router.get('/', function(req, res, next) {
   getData
-    .findFilteredBooks(req.query.filter, req.query.page)
+    .findFilteredBooks(req.query.filter, req.query.page, req.query.term)
     .then(books => res.render('books/index', books))
     .catch(err => {
       // send to 404 handler

@@ -43,7 +43,7 @@ const createBook = params =>
     .then(() => {countBooks++})
 
 /** Finds all books in books table */
-const findAllBooks = page => {
+const findAllBooks = (page, term) => {
   const options = {
     order: [['title']]
   }
@@ -53,7 +53,23 @@ const findAllBooks = page => {
     options.limit = ENTRIES_PER_PAGE;
   }
 
-  return Books.findAll(options);   
+  if (term) {
+    options.where = {
+      [Op.or]: [
+        {title: {
+          [Op.like] : `%${term}%`
+        }},
+        {author: {
+          [Op.like] : `%${term}%`
+        }},
+        {genre: {
+          [Op.like] : `%${term}%`
+        }},        
+      ]
+    }
+  }
+
+  return Books.findAll(options).catch(err => console.log(err));   
 }
 
 /** find a single book by its id 
@@ -66,32 +82,50 @@ const findBookById = id =>
     ]);
 
 /** find all books matching the current filter */
-const findFilteredBooks = (filter = 'all', page = 1) => {
+const findFilteredBooks = (filter = 'all', page = 1, term=null) => {
   // declare an empty where object here and then set base on filter
   let where = {}
+
+
 
   /* if filter is checked out, match book ids to entries
    * in loan table with no return on date
    * if filter is overdue, do the same but also check that return date
    * is less than today's date */ 
   if (filter === 'checked_out') {
-    where = {
-      returned_on: null
-    }
+    where.returned_on= null
+
   } else if (filter === 'overdue') {
-    where = {
-      returned_on: null,
-      return_by: { [Op.lt]: today()}
-    }
+    where.returned_on = null,
+    where.return_by= { [Op.lt]: today()}
   } else if (filter === 'all') {
+    // options for the count process
+    countOptions = {};
+    if (term) {
+      countOptions.where = {
+        [Op.or]: [
+          {title: {
+            [Op.like] : `%${term}%`
+          }},
+          {author: {
+            [Op.like] : `%${term}%`
+          }},
+          {genre: {
+            [Op.like] : `%${term}%`
+          }},        
+        ]
+      }
+    }
+
     /* use find all books for better performance when no filter is needed
      * especially in larger databases */
     return Books
-      .count()  
+      .count(countOptions)  
       .then( totalNumber => {
         // calculate number of pages worth of data
         const numberOfPages = parseInt(totalNumber/ ENTRIES_PER_PAGE) + 1;
-        return findAllBooks(page)
+        // Extract sequelize options
+        return findAllBooks(page, term)
           .then(books => ({
             books,
             filter, 
@@ -99,6 +133,7 @@ const findFilteredBooks = (filter = 'all', page = 1) => {
               numberOfPages,
               currentPage: page
             },
+            term: term,
             title: "Books"})
           )
         })
