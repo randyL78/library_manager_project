@@ -292,8 +292,8 @@ const createPatron = params =>
 let countPatrons = Patrons.count();
 
 /** find all Patrons in patrons table */
-const findAllPatrons = () => 
-  Patrons
+const findAllPatrons = (page = 1) => {
+  return Patrons
     .findAll({
       // sort by last name then by first name
       order: [['last_name'],['first_name']],
@@ -302,8 +302,21 @@ const findAllPatrons = () =>
           // Concactenate first name and last name into name
           [Sequelize.literal("first_name || '  ' || last_name"), 'name']
         ]
-      }
-    });
+      },
+      offset : ENTRIES_PER_PAGE * (page - 1),
+      limit : ENTRIES_PER_PAGE
+    })
+    .then(data => ({
+      patrons: data,
+      pagination: {
+        numberOfPages: 3,
+        currentPage: page
+      },
+        title: "Patrons"
+      })
+    )
+}
+
 
 /** find a single patron by their id 
  * @param id the primary key value of the patron to find
