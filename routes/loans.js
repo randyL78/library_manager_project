@@ -24,7 +24,9 @@ router.get('/', (req, res, next) =>
 router.get('/add', (req, res) => {
   getData
     .buildLoan()
-    .then( data => res.render('loans/loan_add', { data, title: 'New Loan' }))
+    .then( data => {
+      res.render('loans/loan_add', { data, title: 'New Loan' })
+    })
 });
 
 /* GET loan return */

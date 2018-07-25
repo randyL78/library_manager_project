@@ -286,41 +286,54 @@ const buildPatron = params =>
 const createPatron = params => 
     Patrons
       .create(params)
-      // only increment countPatrons if succesful
+      // only increment countPatrons if successful
       .then(() => {countPatrons++});
 
 /** find all Patrons in patrons table */
-const findAllPatrons = (page = 1) => 
+const findAllPatrons = () => 
   Patrons
-    // fetch number of entries that meet criteria without returning whole database
-    .count()
-    .then( totalNumber => {
-      const numberOfPages = parseInt(totalNumber/ ENTRIES_PER_PAGE) + 1
-      return Patrons
-        .findAll({
-          // sort by last name then by first name
-          order: [['last_name'],['first_name']],
-          attributes: {
-            include: [
-              // Concactenate first name and last name into name
-              [Sequelize.literal("first_name || '  ' || last_name"), 'name']
-            ]
-          },
-          offset : ENTRIES_PER_PAGE * (page - 1),
-          limit : ENTRIES_PER_PAGE
-        })
-        .then( patrons => ({patrons, numberOfPages}))
-    })
-    .then(data => ({
-      patrons: data.patrons,
-      pagination: {
-        numberOfPages: data.numberOfPages,
-        currentPage: page
+    .findAll({
+      // sort by last name then by first name
+      order: [['last_name'],['first_name']],
+      attributes: {
+        include: [
+          // Concactenate first name and last name into name
+          [Sequelize.literal("first_name || '  ' || last_name"), 'name']
+        ]
       },
-        title: "Patrons"
-      })
-    );
+    })    
 
+/** Return patrons based on pagination techniques */
+const findFilteredPatrons = (page = 1) => 
+  Patrons
+  // fetch number of entries that meet criteria without returning whole database
+  .count()
+  .then( totalNumber => {
+    const numberOfPages = parseInt(totalNumber/ ENTRIES_PER_PAGE) + 1
+    return Patrons
+      .findAll({
+        // sort by last name then by first name
+        order: [['last_name'],['first_name']],
+        attributes: {
+          include: [
+            // Concactenate first name and last name into name
+            [Sequelize.literal("first_name || '  ' || last_name"), 'name']
+          ]
+        },
+        offset : ENTRIES_PER_PAGE * (page - 1),
+        limit : ENTRIES_PER_PAGE
+      })
+      .then( patrons => ({patrons, numberOfPages}))
+  })
+  .then(data => ({
+    patrons: data.patrons,
+    pagination: {
+      numberOfPages: data.numberOfPages,
+      currentPage: page
+    },
+      title: "Patrons"
+    })
+  );
 
 /** find a single patron by their id 
  * @param id the primary key value of the patron to find
@@ -352,11 +365,11 @@ module.exports = {
   createBook,
   createLoan,
   createPatron,
-  ENTRIES_PER_PAGE,
   findAllPatrons,
   findBookById,
   findFilteredBooks,
   findFilteredLoans,
+  findFilteredPatrons,
   findLoanById,
   findPatronById,
   isBookCheckedOut,

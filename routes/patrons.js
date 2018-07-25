@@ -4,14 +4,13 @@ const router = express.Router();
 
 
 /* Custom dependencies */
-const Patrons = require("../models").Patrons;
 const getData = require('../middleware/getData');
 
 
 /* GET all patrons listing. */
 router.get('/', function(req, res, next) {
   getData
-    .findAllPatrons(req.query.page)
+    .findFilteredPatrons(req.query.page)
     .then( data => res.render('patrons/index', data))
     .catch( err => {
       next(createError(500));
