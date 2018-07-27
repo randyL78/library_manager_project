@@ -320,25 +320,50 @@ const findAllPatrons = () =>
     })    
 
 /** Return patrons based on pagination techniques */
-const findFilteredPatrons = (page = 1) => 
-  Patrons
+const findFilteredPatrons = (page = 1, term = "") => {
+  // Build out the WHERE conditionals using the search term
+  const searchWhere = {
+    [Op.or]: [
+      {first_name : {
+        [Op.like] : `%${term}%`
+      }},
+      {last_name: {
+        [Op.like] : `%${term}%`
+      }},
+      {email: {
+        [Op.like] : `%${term}%`
+      }}, 
+      {library_id: {
+        [Op.like] : `%${term}%`
+      }},  
+      {zip_code: {
+        [Op.like] : `%${term}%`
+      }},         
+    ]}
+
+    // Extract out sequelize options to help keep Patrons Promise chain readable
+    optionBase = {
+      // sort by last name then by first name
+      order: [['last_name'],['first_name']],
+      attributes: {
+        include: [
+          // Concactenate first name and last name into name
+          [Sequelize.literal("first_name || '  ' || last_name"), 'name']
+        ]
+      },
+      where: searchWhere,
+      offset : ENTRIES_PER_PAGE * (page - 1),
+      limit : ENTRIES_PER_PAGE
+    }
+
+
+  return Patrons
   // fetch number of entries that meet criteria without returning whole database
-  .count()
+  .count({where: searchWhere})
   .then( totalNumber => {
     const numberOfPages = parseInt(totalNumber/ ENTRIES_PER_PAGE) + 1
     return Patrons
-      .findAll({
-        // sort by last name then by first name
-        order: [['last_name'],['first_name']],
-        attributes: {
-          include: [
-            // Concactenate first name and last name into name
-            [Sequelize.literal("first_name || '  ' || last_name"), 'name']
-          ]
-        },
-        offset : ENTRIES_PER_PAGE * (page - 1),
-        limit : ENTRIES_PER_PAGE
-      })
+      .findAll(optionBase)
       .then( patrons => ({patrons, numberOfPages}))
   })
   .then(data => ({
@@ -347,10 +372,11 @@ const findFilteredPatrons = (page = 1) =>
       numberOfPages: data.numberOfPages,
       currentPage: page
     },
+      term,
       title: "Patrons"
     })
   );
-
+}
 /** find a single patron by their id 
  * @param id the primary key value of the patron to find
  */

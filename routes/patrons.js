@@ -10,7 +10,7 @@ const getData = require('../middleware/getData');
 /* GET all patrons listing. */
 router.get('/', function(req, res, next) {
   getData
-    .findFilteredPatrons(req.query.page)
+    .findFilteredPatrons(req.query.page, req.query.term)
     .then( data => res.render('patrons/index', data))
     .catch( err => {
       next(createError(500));
