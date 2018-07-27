@@ -43,33 +43,11 @@ const createBook = params =>
     .then(() => {countBooks++})
 
 /** Finds all books in books table */
-const findAllBooks = (page, term) => {
-  const options = {
-    order: [['title']]
-  }
+const findAllBooks = (options = {}, where = {}) => {
+  options.order = [['title']];
+  options.where = where.where;
 
-  if (page) {
-    options.offset = ENTRIES_PER_PAGE * (page - 1);
-    options.limit = ENTRIES_PER_PAGE;
-  }
-
-  if (term) {
-    options.where = {
-      [Op.or]: [
-        {title: {
-          [Op.like] : `%${term}%`
-        }},
-        {author: {
-          [Op.like] : `%${term}%`
-        }},
-        {genre: {
-          [Op.like] : `%${term}%`
-        }},        
-      ]
-    }
-  }
-
-  return Books.findAll(options).catch(err => console.log(err));   
+  return Books.findAll(options)  
 }
 
 /** find a single book by its id 
@@ -82,29 +60,14 @@ const findBookById = id =>
     ]);
 
 /** find all books matching the current filter */
-const findFilteredBooks = (filter = 'all', page = 1, term=null) => {
+const findFilteredBooks = (filter = 'all', page = 1, term="") => {
   // declare an empty where object here and then set base on filter
-  let where = {}
-
-
-
-  /* if filter is checked out, match book ids to entries
-   * in loan table with no return on date
-   * if filter is overdue, do the same but also check that return date
-   * is less than today's date */ 
-  if (filter === 'checked_out') {
-    where.returned_on= null
-
-  } else if (filter === 'overdue') {
-    where.returned_on = null,
-    where.return_by= { [Op.lt]: today()}
-  } else if (filter === 'all') {
-    // options for the count process
-    countOptions = {};
-    if (term) {
-      countOptions.where = {
+  let optionBase = {};
+  let filteredWhere = {};
+  let allWhere = {
+    where: {
         [Op.or]: [
-          {title: {
+          {title : {
             [Op.like] : `%${term}%`
           }},
           {author: {
@@ -113,19 +76,29 @@ const findFilteredBooks = (filter = 'all', page = 1, term=null) => {
           {genre: {
             [Op.like] : `%${term}%`
           }},        
-        ]
-      }
-    }
+        ]}
+    };
+    let filteredInclude = [{ 
+      model: Books,
+      where: allWhere.where
+      }];
+    
+ 
+  if (page) {
+    optionBase.offset = ENTRIES_PER_PAGE * (page - 1),
+    optionBase.limit = ENTRIES_PER_PAGE
+  }
 
+  if (filter === 'all') {
     /* use find all books for better performance when no filter is needed
      * especially in larger databases */
     return Books
-      .count(countOptions)  
+      .count(allWhere)  
       .then( totalNumber => {
         // calculate number of pages worth of data
         const numberOfPages = parseInt(totalNumber/ ENTRIES_PER_PAGE) + 1;
         // Extract sequelize options
-        return findAllBooks(page, term)
+        return findAllBooks(optionBase, allWhere)
           .then(books => ({
             books,
             filter, 
@@ -133,10 +106,21 @@ const findFilteredBooks = (filter = 'all', page = 1, term=null) => {
               numberOfPages,
               currentPage: page
             },
-            term: term,
+            term,
             title: "Books"})
           )
         })
+  /* if filter is checked out, match book ids to entries
+   * in loan table with no return on date
+   * if filter is overdue, do the same but also check that return date
+   * is less than today's date */ 
+  } else if (filter === 'checked_out') {
+    // TODO: UNcomment to filter by unreturned books
+    filteredWhere.returned_on= null
+  } else if (filter === 'overdue') {
+    // TODO: UNcomment to filter by checked out books
+    filteredWhere.returned_on = null,
+    filteredWhere.return_by= { [Op.lt]: today()}
   } else {
     // kick back invaled filter parameters
     throw new Error("Not Found");
@@ -144,31 +128,26 @@ const findFilteredBooks = (filter = 'all', page = 1, term=null) => {
 
   /* extract sequelize options to help make loan promise chain
    * more readable */
-  const options = {
-    include: [{
-      model: Books
-    }],
-    attributes: [
-      ['book_id', 'id'],
-      [Sequelize.literal('Book.title'), 'title'],
-      [Sequelize.literal('Book.author'), 'author'],
-      [Sequelize.literal('Book.genre'), 'genre'],
-      [Sequelize.literal('Book.first_published'), 'first_published']        
-    ],
-    order:[[Sequelize.literal('Book.title')]],
-    where,
-    offset : ENTRIES_PER_PAGE * (page - 1),
-    limit : ENTRIES_PER_PAGE
-  }
+  optionBase.include = filteredInclude;
+  optionBase.attributes = [
+    ['book_id', 'id'],
+    [Sequelize.literal('Book.title'), 'title'],
+    [Sequelize.literal('Book.author'), 'author'],
+    [Sequelize.literal('Book.genre'), 'genre'],
+    [Sequelize.literal('Book.first_published'), 'first_published']        
+  ];
+  optionBase.order = [[Sequelize.literal('Book.title')]];
+  optionBase.where = filteredWhere;
+
 
   // use Loans not Books in order to filter results
   return Loans
     // fetch number of entries that meet criteria without returning whole database
-    .count({where})
+    .count({include: filteredInclude, where: filteredWhere})
     .then( totalNumber => {
       const numberOfPages = parseInt(totalNumber/ ENTRIES_PER_PAGE) + 1
       return Loans
-        .findAll(options)
+        .findAll(optionBase)
         .then(books => ({books, numberOfPages}))
     })
     .then( data => {
@@ -179,9 +158,10 @@ const findFilteredBooks = (filter = 'all', page = 1, term=null) => {
           numberOfPages: data.numberOfPages,
           currentPage: page
         },
+        term,
         title: "Books"
       };
-    })
+    }).catch(err => console.log(err))
 }
 
 /** Update a book based on request object */
