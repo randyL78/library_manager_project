@@ -96,7 +96,7 @@ const findFilteredBooks = (filter = 'all', page = 1, term="") => {
       .count(allWhere)  
       .then( totalNumber => {
         // calculate number of pages worth of data
-        const numberOfPages = parseInt(totalNumber/ ENTRIES_PER_PAGE) + 1;
+        const numberOfPages = parseInt(totalNumber - 1/ ENTRIES_PER_PAGE) + 1;
         // Extract sequelize options
         return findAllBooks(optionBase, allWhere)
           .then(books => ({
