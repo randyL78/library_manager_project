@@ -40,7 +40,7 @@ const createBook = params =>
   Books
     .create(params)
     // only increment count books if successful
-    .then(() => {countBooks++})
+    // .then(() => {countBooks++})
 
 /** Finds all books in books table */
 const findAllBooks = (options = {}, where = {}) => {
@@ -300,10 +300,10 @@ const buildPatron = params =>
 
 /** Create a patron based on request object */
 const createPatron = params => 
-    Patrons
-      .create(params)
-      // only increment countPatrons if successful
-      .then(() => {countPatrons++});
+  Patrons
+    .create(params)
+    // only increment countPatrons if successful
+    // .then(() => {countPatrons++});
 
 /** find all Patrons in patrons table */
 const findAllPatrons = () => 

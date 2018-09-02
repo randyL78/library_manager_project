@@ -1,7 +1,7 @@
 /* Node dependencies */
 const express = require('express');
 const router = express.Router();
-
+const createError = require('http-errors');
 
 /* Custom dependencies */
 const getData = require('../middleware/getData');
@@ -43,6 +43,7 @@ router.post('/add', (req, res, next) => {
       if (err.name === "SequelizeValidationError") {
         res.render('patrons/patron_add', {error: err.errors[0], patron: getData.buildPatron(req.body), title: "New Patron"})
       } else { 
+        console.log(err);
         next(createError(500));
       }
     })

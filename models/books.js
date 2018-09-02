@@ -31,8 +31,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     first_published: {
       type: DataTypes.INTEGER,
+      defaultValue: null,
+      allowNull: true,
       validate: {
-        isNumeric: {
+        is: {
+          args: /^$|(\d+)$/,
           msg: "First Published field must be a number"
         }
       }
